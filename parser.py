@@ -160,6 +160,13 @@ def build_majorpaths(students):
 	return students
 
 
+def separate_years(students):
+	
+	class_years = dict()
+
+	return class_years
+
+
 
 def main(name):
 
@@ -177,6 +184,12 @@ def main(name):
 	
 	# calculate each student's majorpath
 	students = build_majorpaths(students)
+
+	# break them down by year
+	start_years = separate_years(students)
+
+
+
 
 	for s in students.values():
 		print s['majorpath']

@@ -105,9 +105,8 @@ def fill_gap_terms(past_term, present_term):
 			newest = newest[0:4] + 'S'
 		else:
 			# it's spring. increment the years, switch to fall
-
-
-
+			ref = newest[2:4]
+			newest = ref + str('%02d' % (int(ref) + 1)) + 'F'
 
 	return gaps
 
@@ -122,12 +121,11 @@ def build_majorpaths(students):
 		terms = majors.keys()
 		terms.sort()
 
-		majorpath = ''
-		
-		# fill in any gap terms. in this case, these are all LOA.
-		for index in range(1, len(terms)):
+		# fill in any gap terms
+		for index in range(1, len(majors.keys())):
 			past = terms[index - 1]
 			present = terms[index]
+			gap_terms = []
 
 			# are we back to back?
 			# or
@@ -141,6 +139,23 @@ def build_majorpaths(students):
 
 				gap_terms = fill_gap_terms(past, present)
 
+		# add in the gap terms. in this case, all LOA.
+		for g in gap_terms:
+			majors[g] = 'LOA'
+
+		terms.sort()
+		majorpath = ''
+
+		# build the majorpath
+		for t in terms:
+			val = majors[t]
+			while len(val) < 3:
+				val = val + ' '
+
+			majorpath = majorpath + val
+
+		# add it to the dictionary
+		students[s]['majorpath'] = majorpath
 
 	return students
 
@@ -162,6 +177,10 @@ def main(name):
 	
 	# calculate each student's majorpath
 	students = build_majorpaths(students)
+
+	for s in students.values():
+		print s['majorpath']
+
 
 
 	print '\ndone'

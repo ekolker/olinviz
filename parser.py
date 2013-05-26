@@ -205,7 +205,7 @@ def generate_nodes(students):
 
 
 
-def generate_links(students, nodes):
+def generate_links(students, nodes, backwards):
 	links = {}
 
 	# loop through the students
@@ -244,7 +244,7 @@ def generate_links(students, nodes):
 def build_json(nodes, links, filename = 'olin.json', header = ''):
 	out = open(filename, "w")
 
-	contents = {'nodes' : nodes, 'links' : links, 'header' : header}
+	contents = {'nodes' : nodes, 'links' : links.values(), 'header' : header}
 
 	print 'writing . . .',
 	out.write(json.dumps(contents, ensure_ascii = False, indent = 4) + "\n")

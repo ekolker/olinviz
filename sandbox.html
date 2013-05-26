@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Olin Sankey</title>
+<style>
+
+.node rect
+{
+  cursor: move;
+  fill-opacity: .9;
+  shape-rendering: crispEdges;
+}
+
+.node text
+{
+  pointer-events: none;
+  /*text-shadow: 0 1px 0 #fff;*/
+  font-size: 10pt;
+  font-family: sans-serif;
+  /*-webkit-transform: rotate(-30deg)*/
+}
+
+.link
+{
+  fill: none;
+  stroke: #000;
+  stroke-opacity: .2;
+}
+
+
+/*,ENGGRD,1?2?3?4?5?6?&?8?9?.?1?2?3?4?5?6?7?8?9?0?,001002*/
+
+
+.link:hover
+{
+  stroke-opacity: .5;
+}
+
+/*<script type="javascript">
+var file_name = prompt("Target data file, i.e.:\n[SCHOOL][Women/Men]ENG.json",
+        "lol.json");
+</script>*/
+
+</style>
+
+<header type="text/javascript">
+
+<p id="head">Olin Sankey Chart.<br>
+Please select the file you wish to visualize.</p>
+
+</header>
+
+<body>
+<script type="text/javascript">
+// alert("test");
+// console.log("test2");
+
+</script>
+
+<p id="chart"></p>
+
+<script type="text/javascript" src="d3/d3.js"></script>
+<script src="sankey.js"></script>
+<script src="sankey_supplement.js"></script>
+<script>
+console.log("here we go");
+
+var file_name = prompt("Target data file, i.e.:\n[SCHOOL]_[W/M]",
+        "olin");
+
+
+var units = "students";
+
+var margin = {top: 10, right: 10, bottom: 10, left: 10},
+    width = 1190,//window.innerWidth * 0.95 - margin.left - margin.right,
+    legend_pad = 150;
+    height = 400;//(window.innerHeight - 50) * 0.95 - margin.top - margin.bottom;
+    group_pad = 15; 
+
+var formatNumber = d3.format(",.0f"),    // zero decimal places
+    format = function(d) { return formatNumber(d) + " " + units; },
+    color = d3.scale.category20();
+
+// append the svg canvas to the page
+var svg = d3.select("#chart").append("svg")
+    .attr("width", width + margin.left + margin.right + legend_pad)
+    .attr("height", height  + margin.top + margin.bottom)                    //////
+  .append("g")
+    .attr("transform", 
+          "translate(" + margin.left + "," + margin.top + ")");
+
+// Set the sankey diagram properties
+var sankey = d3.sankey()
+    .nodeWidth(7)
+    .nodePadding(10)
+    .size([width, height / 2]);                                                 /////
+
+var path = sankey.link();
+
+// load the data
+
+console.log("loading that file...");
+
+d3.json(file_name + ".json", function(error, graph) 
+{
+
+  sankey
+      .nodes(graph.nodes)
+      .links(graph.links);
+
+  console.log('nodes and links exist. time to lay them out...');
+
+  sankey.layout(1);
+
+  var header = graph.header;
+  document.getElementById("head").innerHTML = header;
+
+
+// //  figure out where the nodes need to go...
+
+//   //  find the max sizes of the nodes
+//   var maxes = {'GRE':0, 'GRX':0, 'TOE':0, 'TOX':0, 'ENG':0, 'XYZ':0};
+//   for (n in graph.nodes)
+//   {
+//     node = graph.nodes[n];
+//     maxes = find_max(maxes, node);
+//   }
+
+//   //  find the max terms of the groups
+//   var mt = {'GRE':0, 'GRX':0, 'TOE':0, 'TOX':0, 'ENG':0, 'XYZ':0};
+//   for (n in graph.nodes)
+//   {
+//     node = graph.nodes[n];
+//     mt = find_max_terms(mt, node);
+//   }
+
+//   console.log(mt);
+
+//   //  "fix" the existing layout
+//   var sort_order = ['GRE', 'GRX', 'ENG', 'XYZ', 'TOE', 'TOX'];
+//   for (n in graph.nodes)
+//   {
+//     graph.nodes[n].y = auto_y(graph.nodes[n], maxes, sort_order, group_pad);
+//   }
+
+// sankey.relayout();
+
+
+// add in the links
+  var link = svg.append("g").selectAll(".link")
+      .data(graph.links)
+    .enter().append("path")
+      .attr("class", "link")
+      .attr("d", path)
+      .style("stroke-width", function(d) { return Math.max(1, d.dy); })
+      .sort(function(a, b) { return b.dy - a.dy; });
+
+// add the link titles
+  link.append("title")
+        .text(function(d) {
+    		return d.source.name + " → " + 
+                d.target.name + "\n" + format(d.value); });
+
+
+
+
+
+// add in the nodes
+  var node = svg.append("g").selectAll(".node")
+      .data(graph.nodes)
+    .enter().append("g")
+      .attr("class", "node")
+      .attr("transform", function(d) { 
+        // console.log("d", d);                                                    ///////
+		  return "translate(" + d.x + "," + d.y + ")"; })
+    .call(
+      d3.behavior.drag()
+        .origin(function(d) { return d; })
+        .on("dragstart", function() { 
+		      this.parentNode.appendChild(this); 
+        })
+        .on("drag", dragmove));
+
+// add the rectangles for the nodes
+  node.append("rect")
+      .attr("height", function(d) { return d.dy; })
+      .attr("width", sankey.nodeWidth())
+      .style("fill", function(d) 
+      { 
+		  return d.color = choose_color(d.name);//color(d.name.slice(3).replace(/ .*/, ""));
+      })
+      .style("stroke", function(d) { 
+		  return d3.rgb(d.color).darker(2); })
+    .append("title")
+      .text(function(d) { 
+		  return d.name + "\n" + format(d.value); });
+
+// // add in the title for the nodes
+//   node.append("text")
+//       .attr("x", -6)
+//       .attr("y", function(d) { return d.dy / 2; })
+//       .attr("dy", ".35em")
+//       .attr("text-anchor", "end")
+//       .attr("transform", null)
+//       .text(function(d) { return d.name; })
+//     .filter(function(d) { return d.x < width / 2; })
+//       .attr("x", 6 + sankey.nodeWidth())
+//       .attr("text-anchor", "start");
+
+
+  // Set the sankey diagram properties                                          ///////////
+  sankey
+    .size([width + legend_pad, height]);
+
+
+  // add in the legend. repurpose the "text" field from before
+  node.append("text")
+      .attr("x", function(d){return calculate_legend_x(d, sankey.nodeWidth(), width)})// 6 + sankey.nodeWidth())
+      .attr("y", function(d) { return d.dy / 2; })
+      .attr("dy", ".35em")
+      .attr("text-anchor", "start")   //  is "end" for the other one
+      .attr("transform", null)
+      .text(function(d) { return write_legend(d, mt)});
+   
+
+
+  // sankey.layout(1);
+
+// the function for moving the nodes
+  function dragmove(d)
+  {
+    d3.select(this).attr("transform", 
+        "translate(" + d.x + "," + (
+                d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))
+            ) + ")");
+    sankey.relayout();
+    link.attr("d", path);
+  }
+
+
+
+
+  var window_name = file_name;//'MIDFIELD Sankey chart: '.concat(file_name)
+
+  window.document.title = window_name
+
+
+
+  // window.onresize = function(event) {
+  //   var width = window.innerWidth * 0.95 - margin.left - margin.right,
+  //       height = (window.innerHeight - 50) * 0.95 - margin.top - margin.bottom;
+  //   console.log('resized!')
+  //   var svg = d3.select("#chart");
+  //     svg.attr("width", width + margin.left + margin.right)
+  //     svg.attr("height", height  + margin.top + margin.bottom)                    //////
+  //     svg.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  //   sankey
+  //     .size([width, height / 2]);
+  //   sankey.layout(1);
+  //   sankey
+  //     .size([width, height]);
+  // }
+
+
+
+
+
+  // function on_resize() {
+  //   var width = window.innerWidth * 0.95 - margin.left - margin.right,
+  //       height = (window.innerHeight - 50) * 0.95 - margin.top - margin.bottom;
+  //   console.log('resized')
+  //   sankey
+  //     .size([width, height]);
+  // } 
+
+
+
+  // function on_resize(c,t){onresize=function(){clearTimeout(t);t=setTimeout(c,100)};return c};
+
+}
+
+
+
+);
+
+// these parenthesis does the trick
+
+</script>
+
+</body>
+</html>

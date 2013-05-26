@@ -174,6 +174,7 @@ def separate_years(students):
 	return start_years
 
 
+
 def generate_nodes(students):
 	nodes = {}
 	backwards = {}
@@ -200,10 +201,81 @@ def generate_nodes(students):
 				backwards.setdefault(node_number, potential_node_name)
 				node_number = node_number + 1
 
-
 	return (nodes, backwards)
 
 
+# 				direct from mid
+# def generate_links(data, nodes, cascade = False, semester_chop = 16):
+# 	links = []
+# 	cascaded_links = dict()
+
+# 	data_keys = data.keys()
+# 	data_keys.sort()
+
+
+# 	for semester in data_keys:
+# 		if semester == 1 or \
+# 		(semester_chop and semester > semester_chop):
+# 			# look backwards for links
+# 			continue
+
+# 		node_names_at_semester = data[semester].keys()
+
+# 		for nnas in node_names_at_semester:
+# 			# loop through each semester's transitions
+# 			link_name = str(semester) + nnas
+# 			source_node_name = str('%03d' % (semester - 1)) + nnas[0:3]
+# 			target_node_name = str('%03d' % semester) + nnas[3:6]
+
+# 			source_node_number = nodes[source_node_name]
+# 			target_node_number = nodes[target_node_name]
+
+
+
+# 			links.append({"source" : source_node_number, \
+# 							"target" : target_node_number, \
+# 							"value" : data[semester][nnas]})
+
+# 			# if cascade:		# always
+# 			for case in ['GRD', 'TOL', 'GRE', 'GRX', 'TOE', 'TOX']:
+# 				# both possibilities
+# 				if case in target_node_name:
+# 					# see what's there
+# 					existing = cascaded_links.setdefault(\
+# 								target_node_name, 0)
+
+# 					cascaded_links[target_node_name] = existing + \
+# 								data[semester][nnas]
+# 					# after everything is done we have the total linked 
+# 					# value to each relevant node 
+		
+# 	if cascade:
+# 		links = links + cascade_links(cascaded_links, nodes)
+
+
+
+
+# 	return links
+
+
+
+
+def generate_links(students, nodes):
+	links = []
+	cascaded_links = dict()
+
+	# loop through the students
+	for student in students.values():
+		majorpath = student['majorpath']
+		print '\n', majorpath
+		# loop through the semesters for which we have data. look backwards.
+		for semester in range(1, len(majorpath) / 3):
+			print (semester, majorpath[3*semester-3:3*semester+3])
+
+
+
+	
+	return links
 
 
 
@@ -232,8 +304,11 @@ def main(name):
 	# build the nodes for the sankey chart
 	(nodes, backwards) = generate_nodes(students)
 
-	for s in nodes:
-		print [s]
+	# make the links
+	links = generate_links(students, nodes)
+
+	# for s in nodes.values():
+	# 	print [s]
 
 
 

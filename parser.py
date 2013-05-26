@@ -134,7 +134,7 @@ def build_majorpaths(students):
 				not (past[4] == 'S' and present[4] == 'F')) or \
 				(int(past[2:4]) != int(present[0:2]) and \
 				past[4] == 'S' and present[4] == 'F')):
-				print index, terms, past, present, past[2:4], present[0:2]
+				# print index, terms, past, present, past[2:4], present[0:2]
 				# we have some gaps to fill!
 
 				gap_terms = fill_gap_terms(past, present)
@@ -162,9 +162,16 @@ def build_majorpaths(students):
 
 def separate_years(students):
 	
-	class_years = dict()
+	start_years = dict()
 
-	return class_years
+	for s in students.keys():
+		# for each student, figure out their entry year
+		first_year = min(students[s]['majors'].keys())[0:2]
+
+		# add them to the appropriate list
+		start_years.setdefault(first_year, []).append(s)
+
+	return start_years
 
 
 
@@ -187,12 +194,13 @@ def main(name):
 
 	# break them down by year
 	start_years = separate_years(students)
+	# year (string) -> list of id number (string)
+
+	print start_years
 
 
-
-
-	for s in students.values():
-		print s['majorpath']
+	# for s in students.values():
+	# 	print s['majorpath']
 
 
 

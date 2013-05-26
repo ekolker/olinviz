@@ -174,48 +174,34 @@ def separate_years(students):
 	return start_years
 
 
-# fix me.... for this codebase
+def generate_nodes(students):
+	nodes = {}
+	backwards = {}
+	# keys:     [3 digit semester #][3 character major name]
+	# values:   unique node ID number
+	node_number = 0
+
+	for student in students.values():
+
+		for semester in range(1, len(student['majorpath']) / 3 + 1):
+
+			# slice the majorpath
+			major = student['majorpath'][3 * semester - 3: 3 * semester]
+
+			# build up the node name
+			potential_node_name = str('%02d' % semester) + major
+
+			if potential_node_name in nodes.keys():
+				continue
+				# node exists, no need to add it
+			else:
+				# otherwise, add it, and gove it a unique ID
+				nodes.setdefault(potential_node_name, node_number)
+				backwards.setdefault(node_number, potential_node_name)
+				node_number = node_number + 1
 
 
-def generate_nodes(data, condense = 0, semester_chop = 16):
-    nodes = {}
-    backwards = {}
-    # keys:     [3 digit semester #][3 character major name]
-    # values:   unique node ID number
-    node_number = 0
-
-    keys = data.keys()
-    keys.sort()
-
-    for key in keys:
-
-        # chop off extra semesters if need be
-        if semester_chop and key > semester_chop:
-            continue
-
-        potential_node_semester = key
-        potential_node_names = data[key].keys()
-
-        for pnn in potential_node_names:
-
-            potential_node_name = pnn[len(pnn) - 3 : len(pnn)]
-            # grab the major
-            # prepend the semester
-            potential_node_name = str('%03d' % key) + potential_node_name
-
-            if potential_node_name in nodes.keys():
-                continue
-                # node exists, no need to add it
-            else:
-                # otherwise, add it, and gove it a unique ID
-                nodes.setdefault(potential_node_name, node_number)
-                backwards.setdefault(node_number, potential_node_name)
-                node_number = node_number + 1
-
-    # if condense:
-    #     (nodes, backwards) = condense_nodes(nodes, backwards, data)
-
-    return (nodes, backwards)
+	return (nodes, backwards)
 
 
 
@@ -239,15 +225,15 @@ def main(name):
 	# calculate each student's majorpath
 	students = build_majorpaths(students)
 
-	# break them down by year
+	# break them down by year. currently this added functionality is not used
 	start_years = separate_years(students)
 	# year (string) -> list of id number (string)
 
-	print start_years
+	# build the nodes for the sankey chart
+	(nodes, backwards) = generate_nodes(students)
 
-
-	# for s in students.values():
-	# 	print s['majorpath']
+	for s in nodes:
+		print [s]
 
 
 

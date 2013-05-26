@@ -7,7 +7,7 @@ Created 2013.05.24 ...yeah, post grad.
 
 """
 
-import csv, math, sys
+import csv, math, sys, json
 
 
 def process_student(students, enrollment):
@@ -204,61 +204,6 @@ def generate_nodes(students):
 	return (nodes, backwards)
 
 
-# 				direct from mid
-# def generate_links(data, nodes, cascade = False, semester_chop = 16):
-# 	links = []
-# 	cascaded_links = dict()
-
-# 	data_keys = data.keys()
-# 	data_keys.sort()
-
-
-# 	for semester in data_keys:
-# 		if semester == 1 or \
-# 		(semester_chop and semester > semester_chop):
-# 			# look backwards for links
-# 			continue
-
-# 		node_names_at_semester = data[semester].keys()
-
-# 		for nnas in node_names_at_semester:
-# 			# loop through each semester's transitions
-# 			link_name = str(semester) + nnas
-# 			source_node_name = str('%03d' % (semester - 1)) + nnas[0:3]
-# 			target_node_name = str('%03d' % semester) + nnas[3:6]
-
-# 			source_node_number = nodes[source_node_name]
-# 			target_node_number = nodes[target_node_name]
-
-
-
-# 			links.append({"source" : source_node_number, \
-# 							"target" : target_node_number, \
-# 							"value" : data[semester][nnas]})
-
-# 			# if cascade:		# always
-# 			for case in ['GRD', 'TOL', 'GRE', 'GRX', 'TOE', 'TOX']:
-# 				# both possibilities
-# 				if case in target_node_name:
-# 					# see what's there
-# 					existing = cascaded_links.setdefault(\
-# 								target_node_name, 0)
-
-# 					cascaded_links[target_node_name] = existing + \
-# 								data[semester][nnas]
-# 					# after everything is done we have the total linked 
-# 					# value to each relevant node 
-		
-# 	if cascade:
-# 		links = links + cascade_links(cascaded_links, nodes)
-
-
-
-
-# 	return links
-
-
-
 
 def generate_links(students, nodes):
 	links = {}
@@ -293,9 +238,18 @@ def generate_links(students, nodes):
 
 			swap['value'] = swap['value'] + 1
 
-
 	return links
 
+
+def build_json(nodes, links, filename = 'olin.json', header = ''):
+	out = open(filename, "w")
+
+	contents = {'nodes' : nodes, 'links' : links, 'header' : header}
+
+	print 'writing . . .',
+	out.write(json.dumps(contents, ensure_ascii = False, indent = 4) + "\n")
+	out.close()
+	print 'done writing!'
 
 
 
@@ -326,12 +280,11 @@ def main(name):
 	# make the links
 	links = generate_links(students, nodes)
 
-	# for s in nodes.values():
-	# 	print [s]
+	# build the json!
+	build_json(nodes, links, 'olin.json', 'All of Olin')
 
 
-
-	print '\ndone'
+	print '\ncomputation complete'
 
 
 

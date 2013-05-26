@@ -261,8 +261,7 @@ def generate_nodes(students):
 
 
 def generate_links(students, nodes):
-	links = []
-	cascaded_links = dict()
+	links = {}
 
 	# loop through the students
 	for student in students.values():
@@ -284,6 +283,15 @@ def generate_links(students, nodes):
 
 			start_node_id = nodes[start_node_name]
 			end_node_id = nodes[end_node_name]
+
+			# add the change into the links dictionary
+			# start_name + end_name (string) -> dict
+			swap = links.setdefault(start_node_name + end_node_name, \
+				{"source" : start_node_id, \
+				"target" : end_node_id, \
+				"value" : 0})
+
+			swap['value'] = swap['value'] + 1
 
 
 	return links

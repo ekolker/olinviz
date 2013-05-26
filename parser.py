@@ -267,14 +267,25 @@ def generate_links(students, nodes):
 	# loop through the students
 	for student in students.values():
 		majorpath = student['majorpath']
-		print '\n', majorpath
-		# loop through the semesters for which we have data. look backwards.
+
+		# loop through the semesters for which we have data
 		for semester in range(1, len(majorpath) / 3):
-			print (semester, majorpath[3*semester-3:3*semester+3])
+			# calculate the past and current semester representations
+			start_semester = str('%02d' % semester)
+			end_semester = str('%02d' % (semester + 1))
+
+			# calculate the start and end majors
+			start_major = majorpath[3 * semester - 3 : 3 * semester]
+			end_major = majorpath[3 * semester : 3 * semester + 3]
+
+			# pick out the source and sink nodes
+			start_node_name = start_semester + start_major
+			end_node_name = end_semester + end_major
+
+			start_node_id = nodes[start_node_name]
+			end_node_id = nodes[end_node_name]
 
 
-
-	
 	return links
 
 

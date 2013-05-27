@@ -3,7 +3,7 @@ function auto_y(node, maxes, sort_order, pad)
 {
 
 	var y_coord = 0;
-		name = node.name.slice(2, 5);
+		name = node.name.slice(2);
 		group_start = -1 * pad;
 
 	for (c = 0 ; c <= sort_order.indexOf(name); c++)
@@ -29,7 +29,7 @@ function find_max(maxes, n)
 	//	maxes = an object that holds max values
 	//	n = node object
 
-	var name = n.name.slice(2, 5);				//	group
+	var name = n.name.slice(2);				//	group
 
 	//	default case... no value exists yet
 	if (typeof(maxes[name]) == 'undefined')
@@ -53,7 +53,7 @@ function find_max_terms(mt, n)
 	//	mt = an object that holds max terms for a given group
 	//	n = node object
 
-	var name = n.name.slice(2, 5);			//	group
+	var name = n.name.slice(2);				//	group
 		term = n.name.slice(0, 2);			//	term
 
 	//	default case... no value exists yet
@@ -94,9 +94,9 @@ function write_legend(n, mt)
 		output = "";
 		this_semester = name.slice(0, 2);
 
-	console.log(name);
+	console.log(mt[name.slice(2)]);
 
-	if (mt[name.slice(2, 5)] == this_semester)
+	if (mt[name.slice(2)] == this_semester)
 	{
 		switch(name.slice(2))
 		{
@@ -138,7 +138,7 @@ function write_legend(n, mt)
 function choose_color(n)
 {
 	
-	var name = n.slice(2, 5);
+	var name = n.slice(2);
 	var output = '#ffbb78' //beige. '#ab1267'			//	magenta
 
 	// console.log([name]);

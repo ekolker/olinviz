@@ -205,7 +205,7 @@ def generate_nodes(students):
 
 
 
-def generate_links(students, nodes, backwards):
+def generate_links(students, nodes):
 	links = {}
 
 	# loop through the students
@@ -241,10 +241,15 @@ def generate_links(students, nodes, backwards):
 	return links
 
 
-def build_json(nodes, links, filename = 'olin.json', header = ''):
+def build_json(backwards_nodes, links, filename = 'olin.json', header = ''):
 	out = open(filename, "w")
 
-	contents = {'nodes' : nodes, 'links' : links.values(), 'header' : header}
+	# we need the reverse nodes dictionary so we can sort by key
+	contents_nodes = []
+	for node_id in sorted(backwards_nodes.keys()):
+		contents_nodes.append({'name' : backwards_nodes[node_id]})
+
+	contents = {'nodes' : contents_nodes, 'links' : links.values(), 'header' : header}
 
 	print 'writing . . .',
 	out.write(json.dumps(contents, ensure_ascii = False, indent = 4) + "\n")
@@ -281,7 +286,7 @@ def main(name):
 	links = generate_links(students, nodes)
 
 	# build the json!
-	build_json(nodes, links, 'olin.json', 'All of Olin')
+	build_json(backwards, links, 'olin.json', 'All of Olin')
 
 
 	print '\ncomputation complete'

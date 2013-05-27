@@ -144,9 +144,10 @@ function write_legend(n, mt)
 function choose_color(n)
 {
 	
-	var name = n.slice(3);
+	var name = n.slice(2);
 	var output = '#ffbb78' //beige. '#ab1267'			//	magenta
 
+	console.log([name]);
 
 	// if (name == 'ENG')
 	// 	output = '#1f77b4';		//	blue	
@@ -166,25 +167,25 @@ function choose_color(n)
 
 	switch (name)
 	{
-		case 'ENG':
+		case 'ECE':
 			{
 				output = '#1f77b4';
 				break;
 			}
 
-		case 'GRD':
+		case 'E  ':
 			{
 				output = '#2ca02c';
 				break;
 			}
 
-		case 'GRE':
+		case 'U  ':
 			{
-				output = '#2ca02c';
+				output = '#dd4010';	//	blood orange
 				break;
 			}
 
-		case 'XYZ':
+		case 'ME ':
 			{
 				output = '#ff7f0e';		//	classic orange
 				// output = '#dd4010';	//	blood orange

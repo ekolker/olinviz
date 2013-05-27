@@ -94,12 +94,11 @@ function write_legend(n, mt)
 		output = "";
 		this_semester = name.slice(0, 2);
 
-	console.log(mt[name.slice(2)]);
-
 	if (mt[name.slice(2)] == this_semester)
 	{
 		switch(name.slice(2))
 		{
+			//	generic
 			case 'ECE':
 			{				
 				output = "ECE";
@@ -124,67 +123,106 @@ function write_legend(n, mt)
 			{				
 				output = "On LOA";
 				break;
+			}
+
+			// just women 
+			case 'ECEF':
+			{				
+				output = "Female ECE";
+				break;
 			}			
+			case 'ME F':
+			{				
+				output = "Female ME";
+				break;
+			}			
+			case 'E  F':
+			{				
+				output = "Female E";
+				break;
+			}			
+			case 'U  F':
+			{				
+				output = "Female Undeclared";
+				break;
+			}			
+			case 'LOAF':
+			{				
+				output = "Female on LOA";
+				break;
+			}
+
+			//	just men
+			case 'ECEM':
+			{				
+				output = "Male ECE";
+				break;
+			}			
+			case 'ME M':
+			{				
+				output = "Male ME";
+				break;
+			}			
+			case 'E  M':
+			{				
+				output = "Male E";
+				break;
+			}			
+			case 'U  M':
+			{				
+				output = "Male Undeclared";
+				break;
+			}			
+			case 'LOAM':
+			{				
+				output = "Male on LOA";
+				break;
+			}
 		}
 	}
-
-
 	return output;
 }
 
 
-
-
 function choose_color(n)
-{
-	
+{	
 	var name = n.slice(2);
-	var output = '#ffbb78' //beige. '#ab1267'			//	magenta
+	var output = '#ffbb78' //beige. 
 
-	// console.log([name]);
-
-
-	// if (name == 'ENG')
+	// '#ab1267'				//	magenta
 	// 	output = '#1f77b4';		//	blue	
-
-	// else if (name == 'GRD' || name == 'GRE')		
 	// 	output = '#2ca02c';		//	green	
-
-	// else if (name == 'XYZ')
 	// 	output = '#ff7f0e'		//	orange
-	// 	// return '#5625ad'		//	swanky purple
-
-	// else if (name = 'GRX')
+	// 	 '#5625ad'				//	swanky purple
 	// 	output = '#455515';	
-
-	// else if (name = 'TOL')
 	// 	output = '#ffbb78';		//	beige
+	//'#dd4010';	//	blood orange
+	//'#ff7f0e';		//	classic orange
+	// output = '#dd2020';		//	nice red
 
 	switch (name)
 	{
 		case 'ECE':
 			{
-				output = '#1f77b4';
+				output = '#dd2020';		//	nice red
 				break;
 			}
 
 		case 'E  ':
 			{
-				output = '#2ca02c';
+				output = '#2ca02c';		//	green
 				break;
 			}
 
 		case 'U  ':
 			{
-				output = '#dd4010';	//	blood orange
+				output = '#5625ad'		//	swanky purple
 				break;
 			}
 
 		case 'ME ':
 			{
-				output = '#ff7f0e';		//	classic orange
-				// output = '#dd4010';	//	blood orange
-				output = '#5625ad'		//	swanky purple
+				output = '#1f77b4';		//	blue
 				break;
 			}
 
@@ -219,9 +257,5 @@ function choose_color(n)
 			}
 	}
 
-
-	// console.log(name, output);
-
 	return output;
-
 }

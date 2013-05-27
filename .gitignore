@@ -9,6 +9,7 @@ bin/
 tmp/
 d3/
 *.json
+*.png
 *.tmp
 *.bak
 *.swp

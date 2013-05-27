@@ -351,6 +351,7 @@ def main(name):
 	# women and men = students-like dicts
 	# gender = 'M' and 'F' -> list of id number (string)
 
+	# battle of the sexes!
 
 	# build some .json files!
 	# all olin students ever

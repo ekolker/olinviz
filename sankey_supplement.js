@@ -200,7 +200,7 @@ function choose_color(n)
 	//'#ff7f0e';		//	classic orange
 	// output = '#dd2020';		//	nice red
 
-	switch (name)
+	switch (name.slice(0, 3))
 	{
 		case 'ECE':
 			{
@@ -255,6 +255,20 @@ function choose_color(n)
 				output = '#ffbb78';
 				break;
 			}
+	}
+
+	if (name.slice(4, 5) == 'F')
+	{
+		var temp = output.slice(1);
+		output = '#'
+		// we need to lighten the color
+		for (i = 0; i < 3; i++)
+		{
+			start_color = parseInt(temp.slice(i * 2, i * 2 + 2), 16);
+			lighter_color = (start_color * 0.8).toString(16);
+			output += lighter_color;
+		}
+		console.log(['lighter now: ', output])
 	}
 
 	return output;

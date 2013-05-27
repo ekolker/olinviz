@@ -3,7 +3,7 @@ function auto_y(node, maxes, sort_order, pad)
 {
 
 	var y_coord = 0;
-		name = node.name.slice(3);
+		name = node.name.slice(2);
 		group_start = -1 * pad;
 
 	for (c = 0 ; c <= sort_order.indexOf(name); c++)
@@ -29,7 +29,7 @@ function find_max(maxes, n)
 	//	maxes = an object that holds max values
 	//	n = node object
 
-	var name = n.name.slice(3);				//	group
+	var name = n.name.slice(2);				//	group
 
 	//	default case... no value exists yet
 	if (typeof(maxes[name]) == 'undefined')
@@ -193,29 +193,29 @@ function choose_color(n)
 				break;
 			}
 
-		case 'GRX':
-			{
-				output = '#455515';
-				break;
-			}
+		// case 'GRX':
+		// 	{
+		// 		output = '#455515';
+		// 		break;
+		// 	}
 
-		case 'TOL':
-			{
-				output = '#ffbb78';		//	classic beige
-				break;
-			}
+		// case 'TOL':
+		// 	{
+		// 		output = '#ffbb78';		//	classic beige
+		// 		break;
+		// 	}
 
-		case 'TOX':
-			{
-				output = '#dd9945';
-				break;
-			}
+		// case 'TOX':
+		// 	{
+		// 		output = '#dd9945';
+		// 		break;
+		// 	}
 
-		case 'TOE':
-			{
-				output = '#ffbb78';
-				break;
-			}
+		// case 'TOE':
+		// 	{
+		// 		output = '#ffbb78';
+		// 		break;
+		// 	}
 
 		default://case 'TOL':
 			{

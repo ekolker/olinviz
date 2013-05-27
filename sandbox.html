@@ -115,34 +115,34 @@ d3.json(file_name + ".json", function(error, graph)
   document.getElementById("head").innerHTML = header;
 
 
-// //  figure out where the nodes need to go...
+//  figure out where the nodes need to go...
 
-//   //  find the max sizes of the nodes
-//   var maxes = {'GRE':0, 'GRX':0, 'TOE':0, 'TOX':0, 'ENG':0, 'XYZ':0};
-//   for (n in graph.nodes)
-//   {
-//     node = graph.nodes[n];
-//     maxes = find_max(maxes, node);
-//   }
+  //  find the max sizes of the nodes
+  var maxes = {'ECE':0, 'ME ':0, 'E  ':0, 'U  ':0, 'LOA':0};
+  for (n in graph.nodes)
+  {
+    node = graph.nodes[n];
+    maxes = find_max(maxes, node);
+  }
 
-//   //  find the max terms of the groups
-//   var mt = {'GRE':0, 'GRX':0, 'TOE':0, 'TOX':0, 'ENG':0, 'XYZ':0};
-//   for (n in graph.nodes)
-//   {
-//     node = graph.nodes[n];
-//     mt = find_max_terms(mt, node);
-//   }
+  //  find the max terms of the groups
+  var mt = {'ECE':0, 'ME ':0, 'E  ':0, 'U  ':0, 'LOA':0};
+  for (n in graph.nodes)
+  {
+    node = graph.nodes[n];
+    mt = find_max_terms(mt, node);
+  }
 
-//   console.log(mt);
+  console.log(mt);
 
-//   //  "fix" the existing layout
-//   var sort_order = ['GRE', 'GRX', 'ENG', 'XYZ', 'TOE', 'TOX'];
-//   for (n in graph.nodes)
-//   {
-//     graph.nodes[n].y = auto_y(graph.nodes[n], maxes, sort_order, group_pad);
-//   }
+  //  "fix" the existing layout
+  var sort_order = ['ME ', 'ECE', 'E  ', 'U  ', 'LOA'];
+  for (n in graph.nodes)
+  {
+    graph.nodes[n].y = auto_y(graph.nodes[n], maxes, sort_order, group_pad);
+  }
 
-// sankey.relayout();
+sankey.relayout();
 
 
 // add in the links

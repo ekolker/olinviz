@@ -53,8 +53,8 @@ function find_max_terms(mt, n)
 	//	mt = an object that holds max terms for a given group
 	//	n = node object
 
-	var name = n.name.slice(3);				//	group
-		term = n.name.slice(0, 3);			//	term
+	var name = n.name.slice(2);				//	group
+		term = n.name.slice(0, 2);			//	term
 
 	//	default case... no value exists yet
 	if (typeof(mt[name]) == 'undefined')
@@ -92,45 +92,39 @@ function write_legend(n, mt)
 
 	var name = n.name;
 		output = "";
-		this_semester = name.slice(0, 3);
+		this_semester = name.slice(0, 2);
 
-	// console.log(name, mt, this_semester, mt[name.slice(3)]);
+	console.log(mt[name.slice(2)]);
 
-
-	if (mt[name.slice(3)] == this_semester)
+	if (mt[name.slice(2)] == this_semester)
 	{
-		switch(name.slice(3))
+		switch(name.slice(2))
 		{
-			case 'ENG':
+			case 'ECE':
 			{				
-				output = "Engineering major";
+				output = "ECE";
 				break;
 			}			
-			case 'XYZ':
+			case 'ME ':
 			{				
-				output = "Non-engineering major";
+				output = "ME";
 				break;
 			}			
-			case 'GRE':
+			case 'E  ':
 			{				
-				output = "Graduated engineer";
+				output = "E";
 				break;
 			}			
-			case 'GRX':
+			case 'U  ':
 			{				
-				output = "Graduated non-engineer";
+				output = "Undeclared";
 				break;
 			}			
-			case 'TOX':
+			case 'LOA':
 			{				
-				output = "TOL from non-engineering";
+				output = "On LOA";
 				break;
 			}			
-			case 'TOE':
-			{				
-				output = "TOL from engineering";
-				break;
-			}
 		}
 	}
 
@@ -147,7 +141,8 @@ function choose_color(n)
 	var name = n.slice(2);
 	var output = '#ffbb78' //beige. '#ab1267'			//	magenta
 
-	console.log([name]);
+	// console.log([name]);
+
 
 	// if (name == 'ENG')
 	// 	output = '#1f77b4';		//	blue	

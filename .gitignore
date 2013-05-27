@@ -14,6 +14,7 @@ d3/
 *.swp
 *~.nib
 local.properties
+data.csv
 .classpath
 .settings/
 .loadpath

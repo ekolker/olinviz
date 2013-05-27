@@ -35,6 +35,7 @@ def process_student(students, enrollment):
 	'ID number'	-> dict; keys:
 		'majors'	-> dict; keys:
 			term name (string) -> major (strings)
+		'gender'	-> 'M' or 'F'
 
 	future:
 		'courses'	-> dict; keys:
@@ -44,8 +45,12 @@ def process_student(students, enrollment):
 			list of terms (int)	->	term name (strings)
 	"""
 
+	# add in the major at that particular term
 	majors = student.setdefault('majors', dict())
 	majors[term] = major
+
+	# add the gender
+	student.setdefault('gender', gender)
 
 	return students
 
@@ -93,13 +98,16 @@ def process_enrollment(enrollment, dicts = [dict()]):
 	
 
 def fill_gap_terms(past_term, present_term):
+	'''
+	fill in gaps in enrollment history due to LOA
+	'''
 	gaps = []
 	newest = past_term
 	while newest != present_term:
-		# build up the term
-
+		# build up the gap terms
 		gaps.append(newest)
 
+		# update the term for next time
 		if newest[4] == 'F':
 			# fall? just switch to spring
 			newest = newest[0:4] + 'S'
@@ -161,7 +169,10 @@ def build_majorpaths(students):
 
 
 def separate_years(students):
-	
+	'''
+	build a dict called start_years which stores the id numbers of students
+	in each entering class. used to filter by entry year for viz purposes
+	'''
 	start_years = dict()
 
 	for s in students.keys():
@@ -175,7 +186,34 @@ def separate_years(students):
 
 
 
-def generate_nodes(students):
+def separate_genders(students):
+	'''
+	build a dictionary called gender with keys 'M' and 'F' which
+	map to lists of id numbers (string) to be used with students
+	'''
+
+	gender = {'M' : [], 'F' : []}
+	women = {}
+	men = {}
+
+	for id_number in students.keys():
+		if students[id_number]['gender'] == 'M':
+			gender['M'].append(id_number) 
+			men[id_number] = students[id_number]
+		else:
+			gender['F'].append(id_number)
+			women[id_number] = students[id_number]
+
+	return (women, men, gender)
+
+
+
+def generate_nodes(students, tag = ''):
+	'''
+	build up the dictionary of nodes (declared majors at a particular
+	semester) and node id numbers (used to link the nodes) 
+	tag is used to tag the nodes (i.e. by gnder and class year)
+	'''
 	nodes = {}
 	backwards = {}
 	# keys:     [3 digit semester #][3 character major name]
@@ -190,7 +228,7 @@ def generate_nodes(students):
 			major = student['majorpath'][3 * semester - 3: 3 * semester]
 
 			# build up the node name
-			potential_node_name = str('%02d' % semester) + major
+			potential_node_name = str('%02d' % semester) + major + tag
 
 			if potential_node_name in nodes.keys():
 				continue
@@ -206,6 +244,10 @@ def generate_nodes(students):
 
 
 def generate_links(students, nodes):
+	'''
+	Build up a dictionary of links between nodes. These repreent transitions 
+	between declared majors at the ntersection of semesters.
+	'''
 	links = {}
 
 	# loop through the students
@@ -241,7 +283,12 @@ def generate_links(students, nodes):
 	return links
 
 
-def build_json(backwards_nodes, links, filename = 'olin.json', header = ''):
+
+def build_json(backwards_nodes, links, filename, header):
+	'''
+	Write the output file so that the data can be visualized using 
+	d3 and sankey.
+	'''
 	out = open(filename, "w")
 
 	# we need the reverse nodes dictionary so we can sort by key
@@ -249,12 +296,31 @@ def build_json(backwards_nodes, links, filename = 'olin.json', header = ''):
 	for node_id in sorted(backwards_nodes.keys()):
 		contents_nodes.append({'name' : backwards_nodes[node_id]})
 
-	contents = {'nodes' : contents_nodes, 'links' : links.values(), 'header' : header}
+	contents = {'nodes' : contents_nodes, 'links' : links.values(), \
+		'header' : header}
 
-	print 'writing . . .',
+	print filename + ':\t writing . . .',
 	out.write(json.dumps(contents, ensure_ascii = False, indent = 4) + "\n")
 	out.close()
-	print 'done writing!'
+
+	print 'done!'
+
+
+
+def generate_output(students, filename, header):
+	'''
+	use the dict students to build an output .json file filename
+	with header header to be visualized
+	'''
+	# build the nodes for the sankey chart
+	(nodes, backwards) = generate_nodes(students)
+
+	# make the links
+	links = generate_links(students, nodes)
+
+	header = header + ' (' + str(len(students.keys())) + ' Oliners)'
+	# build the json!
+	build_json(backwards, links, filename, header)
 
 
 
@@ -264,8 +330,10 @@ def main(name):
 
 	rawdata = csv.reader(file("data.csv", "rU"), dialect = 'excel')
 	
+	# ths will hold the students (keyed by id number)
 	students = dict()
 	
+	# to be expanded as functionality is needed
 	dicts = [students]
 
 	for enrollment in rawdata:
@@ -275,18 +343,24 @@ def main(name):
 	# calculate each student's majorpath
 	students = build_majorpaths(students)
 
-	# break them down by year. currently this added functionality is not used
+	# filter... currently this added functionality is not used
 	start_years = separate_years(students)
 	# year (string) -> list of id number (string)
 
-	# build the nodes for the sankey chart
-	(nodes, backwards) = generate_nodes(students)
+	(women, men, gender) = separate_genders(students)
+	# women and men = students-like dicts
+	# gender = 'M' and 'F' -> list of id number (string)
 
-	# make the links
-	links = generate_links(students, nodes)
 
-	# build the json!
-	build_json(backwards, links, 'olin.json', 'All of Olin')
+	# build some .json files!
+	# all olin students ever
+	generate_output(students, 'olin.json', 'All of Olin')
+
+	# ladies
+	generate_output(women, 'women.json', 'All of Olin\'s women')
+	# gentlemen
+	generate_output(men, 'men.json', 'All of Olin\'s men')
+
 
 
 	print '\ncomputation complete'

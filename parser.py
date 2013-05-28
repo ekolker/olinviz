@@ -208,7 +208,7 @@ def separate_genders(students):
 
 
 
-def generate_nodes(students, tag = ''):
+def generate_nodes(students, tag = '', node_number = 0):
 	'''
 	build up the dictionary of nodes (declared majors at a particular
 	semester) and node id numbers (used to link the nodes) 
@@ -218,7 +218,6 @@ def generate_nodes(students, tag = ''):
 	backwards = {}
 	# keys:     [3 digit semester #][3 character major name]
 	# values:   unique node ID number
-	node_number = 0
 
 	for student in students.values():
 
@@ -307,20 +306,45 @@ def build_json(backwards_nodes, links, filename, header):
 
 
 
-def generate_output(students, filename, header):
+def generate_output(students, filename, header, tags = ''):
 	'''
-	use the dict students to build an output .json file filename
-	with header header to be visualized
+	use the dict (or list of dicts) students to build an output .json
+	file filename with header header to be visualized
+
+	tags are used to separate different dict's worth of data
 	'''
-	# build the nodes for the sankey chart
-	(nodes, backwards) = generate_nodes(students)
 
-	# make the links
-	links = generate_links(students, nodes)
+	if tags == '':
+		# we only have one dict to visualize
 
-	header = header + ' (' + str(len(students.keys())) + ' Oliners)'
-	# build the json!
-	build_json(backwards, links, filename, header)
+		# build the nodes for the sankey chart
+		(nodes, backwards) = generate_nodes(students)
+
+		# make the links
+		links = generate_links(students, nodes)
+
+		header = header + ' (' + str(len(students.keys())) + ' Oliners)'
+		# build the json!
+		build_json(backwards, links, filename, header)
+
+	else:
+		# we have mutiple to visualize. declare everything, append as we go
+		nodes = {}
+		backwards = {}
+		links = []
+
+		for subset in students:
+			# loop through the different dicts of students
+			(more_nodes, more_backwards) = generate_nodes(subset, \
+				len(nodes.values()))
+
+			nodes.update(more_nodes)
+			backwards.update(more_backwards)
+
+		# we have all our nodes, now generate the links!
+		# realization: this will be hard...
+
+
 
 
 

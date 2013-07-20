@@ -283,7 +283,7 @@ def generate_links(students, nodes):
 
 
 
-def build_json(backwards_nodes, links, filename, header):
+def build_json(backwards_nodes, links, filename, header, size):
 	'''
 	Write the output file so that the data can be visualized using 
 	d3 and sankey.
@@ -296,7 +296,7 @@ def build_json(backwards_nodes, links, filename, header):
 		contents_nodes.append({'name' : backwards_nodes[node_id]})
 
 	contents = {'nodes' : contents_nodes, 'links' : links.values(), \
-		'header' : header}
+		'header' : header, 'size' : size}
 
 	print filename + ':\t writing . . .',
 	out.write(json.dumps(contents, ensure_ascii = False, indent = 4) + "\n")
@@ -325,7 +325,7 @@ def generate_output(students, filename, header, tags = ''):
 
 		header = header + ' (' + str(len(students.keys())) + ' Oliners)'
 		# build the json!
-		build_json(backwards, links, filename, header)
+		build_json(backwards, links, filename, header, len(students.keys()))
 
 	else:
 		# we have mutiple to visualize. declare everything, append as we go
@@ -371,6 +371,30 @@ def main(name):
 	start_years = separate_years(students)
 	# year (string) -> list of id number (string)
 
+	olin_class_of = {}
+	# grad_year (string) -> dict
+	# 	id (string) -> student
+	# go through each start year...
+	for start_year in start_years.keys():
+		# ...but reference them by their graduation year
+		grad_year = str(int(start_year) + 2004)
+		
+		# make a dict in preparation
+		this_graduating_class = {}
+		for student_id_number in start_years[start_year]:
+			# add each student to the dict
+			this_graduating_class[student_id_number] = \
+				students[student_id_number]
+
+		# add the dict to olin_class_of
+		olin_class_of[grad_year] = this_graduating_class
+
+		# output!
+		generate_output(this_graduating_class, grad_year + '_all.json', \
+			'Class of ' + grad_year)
+
+
+
 	(women, men, gender) = separate_genders(students)
 	# women and men = students-like dicts
 	# gender = 'M' and 'F' -> list of id number (string)
@@ -385,6 +409,8 @@ def main(name):
 	generate_output(women, 'women.json', 'All of Olin\'s women')
 	# gentlemen
 	generate_output(men, 'men.json', 'All of Olin\'s men')
+
+	
 
 
 

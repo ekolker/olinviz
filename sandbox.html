@@ -71,9 +71,9 @@ var file_name = prompt("Target data file, i.e.:\n[SCHOOL]_[W/M]",
 var units = "students";
 
 var margin = {top: 10, right: 10, bottom: 10, left: 10},
-    width = 1190,//window.innerWidth * 0.95 - margin.left - margin.right,
+    width = 800//1190,//window.innerWidth * 0.95 - margin.left - margin.right,
     legend_pad = 150;
-    height = 400;//(window.innerHeight - 50) * 0.95 - margin.top - margin.bottom;
+    height = 700;//(window.innerHeight - 50) * 0.95 - margin.top - margin.bottom;
     group_pad = 15; 
 
 var formatNumber = d3.format(",.0f"),    // zero decimal places
@@ -92,7 +92,7 @@ var svg = d3.select("#chart").append("svg")
 var sankey = d3.sankey()
     .nodeWidth(7)
     .nodePadding(10)
-    .size([width, height / 2]);                                                 /////
+    .size([width, height / 4]);                                                 /////
 
 var path = sankey.link();
 
@@ -140,6 +140,7 @@ d3.json(file_name + ".json", function(error, graph)
   for (n in graph.nodes)
   {
     graph.nodes[n].y = auto_y(graph.nodes[n], maxes, sort_order, group_pad);
+    // graph.nodes[n].dy = graph.nodes[n].value; //  pixel-perfect
   }
 
 sankey.relayout();
@@ -182,7 +183,7 @@ sankey.relayout();
 
 // add the rectangles for the nodes
   node.append("rect")
-      .attr("height", function(d) { return d.dy; })
+      .attr("height", function(d) { return d.dy; })                           ///////
       .attr("width", sankey.nodeWidth())
       .style("fill", function(d) 
       { 
@@ -210,6 +211,8 @@ sankey.relayout();
   // Set the sankey diagram properties                                          ///////////
   sankey
     .size([width + legend_pad, height]);
+
+
 
 
   // add in the legend. repurpose the "text" field from before

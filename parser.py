@@ -352,7 +352,9 @@ def main(name):
 
 	print 'activate!\n'
 
-	rawdata = csv.reader(file("data.csv", "rU"), dialect = 'excel')
+	rawdata = csv.reader(file("data2.csv", "rU"), dialect = 'excel')
+
+	print 'file open...\n'
 	
 	# ths will hold the students (keyed by id number)
 	students = dict()

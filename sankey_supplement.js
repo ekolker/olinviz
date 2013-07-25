@@ -1,4 +1,11 @@
 
+function pixel_perfect(node)
+{
+	node.dy = node.value;
+}
+
+
+
 function auto_y(node, maxes, sort_order, pad)
 {
 

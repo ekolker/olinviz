@@ -130,11 +130,11 @@ def build_majorpaths(students):
 		terms.sort()
 
 		# fill in any gap terms
+		gap_terms = []
 		for index in range(1, len(majors.keys())):
 			past = terms[index - 1]
 			present = terms[index]
-			gap_terms = []
-
+			
 			# are we back to back?
 			# or
 			# front 1/2 of present = back 1/2 of past and S->F
@@ -145,11 +145,16 @@ def build_majorpaths(students):
 				# print index, terms, past, present, past[2:4], present[0:2]
 				# we have some gaps to fill!
 
-				gap_terms = fill_gap_terms(past, present)
+				temp = fill_gap_terms(past, present)
+				for t in temp:
+					gap_terms.append(t)
 
 		# add in the gap terms. in this case, all LOA.
+		# print gap_terms
 		for g in gap_terms:
-			majors[g] = 'LOA'
+			majors.setdefault(g, 'LOA')
+
+		print majors
 
 		terms.sort()
 		majorpath = ''

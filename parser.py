@@ -127,26 +127,31 @@ def fill_away_status(majors):
 
 	terms = majors.keys()
 	terms.sort()
+	trick = {'F':'S', 'S':'F'}
 
 	for i in range(len(terms) - 1):
 		# compare adjacesnt indicies
 		past = terms[i]
-		preset = terms[i + 1]
+		present = terms[i + 1]
 
 		if past[0:4] == present[0:4]:
-			# sam year = we're good: 0910F, 0910S
+			# same year = we're good: 0910S, 0910F. spring before fall, always
 			pass
-		elif past[2:4] == present[0:2]:
-			# also good: 0809S 0910F
+		elif (past[2:4] == present[0:2]) and \
+				not (past[4] == present[4]):
+			# also good: 0809F 0910S
 			pass
-		elif past[4] == present[4]:
-			# same semester = we LOA'd an odd number of semesters
-			# if past[0:2] == present[2:4]:
-			# 	# we only LOA'd one semester:
-			# 	# i.e. 0809F, 0910F or 
+		else:
+			# we skipped something!
+			temp = past
+			while (temp != present):
+				if temp[4] == 'S':
+					temp = temp[0:4] + 'F'
+				else:
+					temp = temp[2:4] + str('%02d' % ((int(temp[2:4]) + 1) % 100)) + 'S'
+				majors[temp] = 'LOA'
 
-
-
+	return majors
 
 
 def build_majorpaths(students):
@@ -158,33 +163,33 @@ def build_majorpaths(students):
 		terms = majors.keys()
 		terms.sort()
 
-		fill_away_status(majors)
+		majors = fill_away_status(majors)
 
-		# fill in any gap terms
-		gap_terms = []
-		for index in range(1, len(majors.keys())):
-			past = terms[index - 1]
-			present = terms[index]
+		# # fill in any gap terms
+		# gap_terms = []
+		# for index in range(1, len(majors.keys())):
+		# 	past = terms[index - 1]
+		# 	present = terms[index]
 
-			# print past, present
+		# 	# print past, present
 			
-			# are we back to back?
-			# or
-			# front 1/2 of present = back 1/2 of past and S->F
-			if 	((not (past[0:4] == present[0:4]) and \
-				not (past[4] == 'S' and present[4] == 'F')) or \
-				(int(past[2:4]) != int(present[0:2]) and \
-				past[4] == 'S' and present[4] == 'F')):
-				# print index, terms, past, present, past[2:4], present[0:2]
-				# we have some gaps to fill!
+		# 	# are we back to back?
+		# 	# or
+		# 	# front 1/2 of present = back 1/2 of past and S->F
+		# 	if 	((not (past[0:4] == present[0:4]) and \
+		# 		not (past[4] == 'S' and present[4] == 'F')) or \
+		# 		(int(past[2:4]) != int(present[0:2]) and \
+		# 		past[4] == 'S' and present[4] == 'F')):
+		# 		# print index, terms, past, present, past[2:4], present[0:2]
+		# 		# we have some gaps to fill!
 
-				temp = fill_gap_terms(past, present)
-				for t in temp:
-					gap_terms.append(t)
+		# 		temp = fill_gap_terms(past, present)
+		# 		for t in temp:
+		# 			gap_terms.append(t)
 
-		# add in the gap terms. in this case, all LOA.
-		for g in gap_terms:
-			majors[g] = 'LOA'
+		# # add in the gap terms. in this case, all LOA.
+		# for g in gap_terms:
+		# 	majors[g] = 'LOA'
 
 		# print majors
 

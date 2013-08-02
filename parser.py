@@ -119,17 +119,32 @@ def fill_gap_terms(past_term, present_term):
 	return gaps
 
 
-def fill_away_status(past, present):
+def fill_away_status(majors):
 	'''
-	Figure out if the student skipped a semester (or more)
+	Figure out if the student skipped a semester (or more) and if 
+	they studied abroad
 	'''
-	verdict = False
 
-	past_year = past[0:4]
-	past_term = past[4]
+	terms = majors.keys()
+	terms.sort()
 
-	present_year = present[0:4]
-	present_term = present[4]
+	for i in range(len(terms) - 1):
+		# compare adjacesnt indicies
+		past = terms[i]
+		preset = terms[i + 1]
+
+		if past[0:4] == present[0:4]:
+			# sam year = we're good: 0910F, 0910S
+			pass
+		elif past[2:4] == present[0:2]:
+			# also good: 0809S 0910F
+			pass
+		elif past[4] == present[4]:
+			# same semester = we LOA'd an odd number of semesters
+			# if past[0:2] == present[2:4]:
+			# 	# we only LOA'd one semester:
+			# 	# i.e. 0809F, 0910F or 
+
 
 
 
@@ -143,13 +158,15 @@ def build_majorpaths(students):
 		terms = majors.keys()
 		terms.sort()
 
+		fill_away_status(majors)
+
 		# fill in any gap terms
 		gap_terms = []
 		for index in range(1, len(majors.keys())):
 			past = terms[index - 1]
 			present = terms[index]
 
-			print past, present
+			# print past, present
 			
 			# are we back to back?
 			# or
@@ -169,7 +186,7 @@ def build_majorpaths(students):
 		for g in gap_terms:
 			majors[g] = 'LOA'
 
-		print majors
+		# print majors
 
 		terms.sort()
 		majorpath = ''

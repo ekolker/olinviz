@@ -119,41 +119,6 @@ def fill_gap_terms(past_term, present_term):
 	return gaps
 
 
-def fill_away_status(majors):
-	'''
-	Figure out if the student skipped a semester (or more) and if 
-	they studied abroad
-	'''
-
-	terms = majors.keys()
-	terms.sort()
-	trick = {'F':'S', 'S':'F'}
-
-	for i in range(len(terms) - 1):
-		# compare adjacesnt indicies
-		past = terms[i]
-		present = terms[i + 1]
-
-		if past[0:4] == present[0:4]:
-			# same year = we're good: 0910S, 0910F. spring before fall, always
-			pass
-		elif (past[2:4] == present[0:2]) and \
-				not (past[4] == present[4]):
-			# also good: 0809F 0910S
-			pass
-		else:
-			# we skipped something!
-			temp = past
-			while (temp != present):
-				if temp[4] == 'S':
-					temp = temp[0:4] + 'F'
-				else:
-					temp = temp[2:4] + str('%02d' % ((int(temp[2:4]) + 1) % 100)) + 'S'
-				majors[temp] = 'LOA'
-
-	return majors
-
-
 def build_majorpaths(students):
 	'''
 	based on the majors, build up a majorpath; store it as 'majorpath'
@@ -163,35 +128,36 @@ def build_majorpaths(students):
 		terms = majors.keys()
 		terms.sort()
 
-		majors = fill_away_status(majors)
+		# fill in any gap terms
+		gap_terms = []
+		for index in range(1, len(majors.keys())):
+			past = terms[index - 1]
+			present = terms[index]
 
-		# # fill in any gap terms
-		# gap_terms = []
-		# for index in range(1, len(majors.keys())):
-		# 	past = terms[index - 1]
-		# 	present = terms[index]
+			# are we back to back?
+			# or
+			# front 1/2 of present = back 1/2 of past and S->F
+			if 	((not (past[0:4] == present[0:4]) and \
+				not (past[4] == 'S' and present[4] == 'F')) or \
+				(int(past[2:4]) != int(present[0:2]) and \
+				past[4] == 'S' and present[4] == 'F')):
+				# print index, terms, past, present, past[2:4], present[0:2]
+				# we have some gaps to fill!
 
-		# 	# print past, present
-			
-		# 	# are we back to back?
-		# 	# or
-		# 	# front 1/2 of present = back 1/2 of past and S->F
-		# 	if 	((not (past[0:4] == present[0:4]) and \
-		# 		not (past[4] == 'S' and present[4] == 'F')) or \
-		# 		(int(past[2:4]) != int(present[0:2]) and \
-		# 		past[4] == 'S' and present[4] == 'F')):
-		# 		# print index, terms, past, present, past[2:4], present[0:2]
-		# 		# we have some gaps to fill!
+				gaps = fill_gap_terms(past, present)
+				for g in gaps:
+					gap_terms.append(g)
 
-		# 		temp = fill_gap_terms(past, present)
-		# 		for t in temp:
-		# 			gap_terms.append(t)
-
-		# # add in the gap terms. in this case, all LOA.
-		# for g in gap_terms:
-		# 	majors[g] = 'LOA'
-
-		# print majors
+		# add in the gap terms. in this case, all LOA.
+		k = majors.keys()
+		k.sort()
+		print k
+		for g in gap_terms:
+			majors[g] = 'LOA'
+		k = majors.keys()
+		k.sort()
+		print k		
+		print ''
 
 		terms.sort()
 		majorpath = ''
@@ -387,16 +353,15 @@ def generate_output(students, filename, header, tags = ''):
 		# realization: this will be hard...
 
 
+def make_sankey_stuff(filename):
 
+	'''
+	encapsulate all the sankey-related code here
+	'''
 
+	rawdata = csv.reader(file(filename, "rU"), dialect = 'excel')
 
-def main(name):
-
-	print 'activate!\n'
-
-	rawdata = csv.reader(file("data2.csv", "rU"), dialect = 'excel')
-
-	print 'file open...\n'
+	print 'file open for sankey chart-ing...\n'
 	
 	# ths will hold the students (keyed by id number)
 	students = dict()
@@ -454,7 +419,113 @@ def main(name):
 	# gentlemen
 	generate_output(men, 'men.json', 'All of Olin\'s men')
 
+	print '\ndone with sankey-ing!\n\n-------------------------------\n'
+
+
+
+def write_bubbles_json(data):
+	'''
+	take a courses-style dict, make a json with its contents
+	'''
+	course_ids = data.keys()
+
+	# each course gets a json
+	for course_id in course_ids:
+		course = data[course_id]
+
+
 	
+def make_bubbles_and_bars_stuff(filename):
+	'''
+	make the jsons for the bubbles and bars
+	'''
+
+	print 'bubbles and bars\n'
+
+	rawdata = csv.reader(file(filename, "rU"), dialect = 'excel')
+
+	# now we want it from the courses' point of view...
+	courses = {}
+	# course id (string) --> dict
+	# 	'id' --> course id (string)
+	# 	'titles' --> 
+	# 	'students' --> list of student IDs who took the course (strings)
+	# 	'majors' --> dict
+	# 		'ME', 'E', 'U', 'ECE' --> lists of id numbers (strings)
+	# 	'ages' --> dict
+	#		'FR', 'SO', 'JR', 'SR' --> lists of id numbers (strings) 
+	# 	'genders' --> dict
+	# 		'M', 'W' --> lists of id numbers (strings)
+	# 	'offerings' --> dict (recur most of the above per offering)
+	# 		semesters (string) --> dict
+	#			'students' --> list of student IDs who took the course (strings)
+	#			'majors' --> dict
+	#				'ME', 'E', 'U', 'ECE' --> lists of id numbers (strings)
+	#			'ages' --> dict
+	#				'FR', 'SO', 'JR', 'SR' --> lists of id numbers (strings) 
+	#			'genders' --> dict
+	#				'M', 'W' --> lists of id numbers (strings)
+
+	for enrollment in rawdata:
+		# add the appropriate info to courses
+
+		# break out the enrollment data
+		identifier = enrollment[0].strip()
+		term = enrollment[1].strip()
+		gender = enrollment[2].strip()
+		year = enrollment[3].strip()
+		major = enrollment[4].strip()
+		concentration = enrollment[5].strip()
+		course_id = enrollment[6].strip()
+		course_title = enrollment[7].strip()
+
+		# get it or start it
+		course = courses.setdefault(course_id, \
+			{\
+			'id' : course_id, \
+			'titles' : [], \
+			'students' : [], \
+			'majors' : {'ME' : [], 'E' : [], 'ECE' : [], 'U' : []}, \
+			'ages' : {'FR' : [], 'SO' : [], 'JR' : [], 'SR' : []}, \
+			'genders' : {'M' : [], 'F' : []}, \
+			'offerings' : {}
+			})
+
+		# go in by the specific offering
+		offering = course['offerings'].setdefault(term, {\
+			'titles' : [], \
+			'students' : [], \
+			'majors' : {'ME' : [], 'E' : [], 'ECE' : [], 'U' : []}, \
+			'ages' : {'FR' : [], 'SO' : [], 'JR' : [], 'SR' : []}, \
+			'genders' : {'M' : [], 'F' : []}, \
+			})
+
+		# work it
+		for database in (course, offering):
+			database['students'].append(identifier)
+			if course_title not in database['titles']:
+				database['titles'].append(course_title)
+			database['majors'][major].append(identifier)
+			database['ages'][year].append(identifier)
+			database['genders'][gender].append(identifier)
+
+	# data have been parsed, so now output them!
+	write_bubbles_json(courses)
+
+	print 'done with bubble/bar json writing\n'
+
+
+
+
+def main(name):
+
+	print 'activate!\n'
+
+	# do the sankey chart
+	make_sankey_stuff("data2.csv")
+
+	# do the bubbles and bars
+	make_bubbles_and_bars_stuff("data2.csv")
 
 
 

@@ -232,6 +232,11 @@ function choose_color(n)
 				output = '#1f77b4';		//	blue
 				break;
 			}
+		case 'AWA':
+			{
+				output = '#ff7f0e'		//	orange
+				break;
+			}
 
 		// case 'GRX':
 		// 	{
@@ -254,7 +259,7 @@ function choose_color(n)
 		// case 'TOE':
 		// 	{
 		// 		output = '#ffbb78';
-		// 		break;
+		// 		break;	
 		// 	}
 
 		default://case 'TOL':
@@ -266,17 +271,8 @@ function choose_color(n)
 
 	if (name.slice(4, 5) == 'F')
 	{
-		var temp = output.slice(1);
-		output = '#'
-		// we need to lighten the color
-		for (i = 0; i < 3; i++)
-		{
-			start_color = parseInt(temp.slice(i * 2, i * 2 + 2), 16);
-			lighter_color = (start_color * 0.8).toString(16);
-			output += lighter_color;
-		}
-		console.log(['lighter now: ', output])
+		return d3.rgb(output).brighter();
 	}
 
-	return output;
+	return d3.rgb(output);
 }

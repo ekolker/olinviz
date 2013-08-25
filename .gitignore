@@ -11,8 +11,8 @@
 bin/
 tmp/
 d3/
-data/
-data/*
+output/
+output/*
 *.json
 *.png
 *.tmp

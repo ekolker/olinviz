@@ -1,65 +1,279 @@
 <!DOCTYPE html>
-<html>
-  <head>    
-    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
-    <title>Testing Pie Chart</title>
-    <script type="text/javascript" src="http://mbostock.github.com/d3/d3.js?2.1.3"></script>
-    <script type="text/javascript" src="http://mbostock.github.com/d3/d3.geom.js?2.1.3"></script>
-    <script type="text/javascript" src="http://mbostock.github.com/d3/d3.layout.js?2.1.3"></script>
- 
-    <style type="text/css">
-        .slice text {
-            font-size: 16pt;
-            font-family: Arial;
-        }   
-    </style>
-  </head>
-  <body>
-    <script type="text/javascript">
- 
-    var w = 300,                        //width
-    h = 300,                            //height
-    r = 100,                            //radius
-    color = d3.scale.category20c();     //builtin range of colors
- 
-    data = [{"label":"one", "value":20}, 
-            {"label":"two", "value":50}, 
-            {"label":"three", "value":30}];
-    
-    var vis = d3.select("body")
-        .append("svg:svg")              //create the SVG element inside the <body>
-        .data([data])                   //associate our data with the document
-            .attr("width", w)           //set the width and height of our visualization (these will be attributes of the <svg> tag
-            .attr("height", h)
-        .append("svg:g")                //make a group to hold our pie chart
-            .attr("transform", "translate(" + r + "," + r + ")")    //move the center of the pie chart from 0, 0 to radius, radius
- 
-    var arc = d3.svg.arc()              //this will create <path> elements for us using arc data
-        .outerRadius(r);
- 
-    var pie = d3.layout.pie()           //this will create arc data for us given a list of values
-        .value(function(d) { return d.value; });    //we must tell it out to access the value of each element in our data array
- 
-    var arcs = vis.selectAll("g.slice")     //this selects all <g> elements with class slice (there aren't any yet)
-        .data(pie)                          //associate the generated pie data (an array of arcs, each having startAngle, endAngle and value properties) 
-        .enter()                            //this will create <g> elements for every "extra" data element that should be associated with a selection. The result is creating a <g> for every object in the data array
-            .append("svg:g")                //create a group to hold each slice (we will have a <path> and a <text> element associated with each slice)
-                .attr("class", "slice");    //allow us to style things in the slices (like text)
- 
-        arcs.append("svg:path")
-                .attr("fill", function(d, i) { return color(i); } ) //set the color for each slice to be chosen from the color function defined above
-                .attr("d", arc);                                    //this creates the actual SVG path using the associated data (pie) with the arc drawing function
- 
-        arcs.append("svg:text")                                     //add a label to each slice
-                .attr("transform", function(d) {                    //set the label's origin to the center of the arc
-                //we have to make sure to set these before calling arc.centroid
-                d.innerRadius = 0;
-                d.outerRadius = r;
-                return "translate(" + arc.centroid(d) + ")";        //this gives us a pair of coordinates like [50, 50]
-            })
-            .attr("text-anchor", "middle")                          //center the text on it's origin
-            .text(function(d, i) { return data[i].label; });        //get the label from our original data array
-        
-    </script>
-  </body>
+<meta charset="utf-8">
+<title>Olin Pie</title>
+<style>
+
+.node text
+{
+	pointer-events: none;
+	/*text-shadow: 0 1px 0 #fff;*/
+	font-size: 10pt;
+	font-family: sans-serif;
+	/*-webkit-transform: rotate(-30deg)*/
+}
+
+.link
+{
+	fill: none;
+	stroke: #000;
+	stroke-opacity: .2;
+}
+
+
+/*,ENGGRD,1?2?3?4?5?6?&?8?9?.?1?2?3?4?5?6?7?8?9?0?,001002*/
+
+
+.link:hover
+{
+	stroke-opacity: .5;
+}
+
+</style>
+
+<header type="text/javascript">
+
+<p id="head">Olin Sankey Chart.<br>
+Please select the file you wish to visualize.</p>
+
+</header>
+
+<body>
+<script type="text/javascript">
+// alert("test");
+// console.log("test2");
+
+</script>
+
+<p id="chart"></p>
+
+<script type="text/javascript" src="d3/d3.js"></script>
+<script>
+console.log("here we go");
+
+var file_name = prompt("Target data file",
+				"olin");
+
+
+var units = "students";
+
+var margin = {top: 10, right: 10, bottom: 10, left: 10},
+		width = 1190,//window.innerWidth * 0.95 - margin.left - margin.right,
+		legend_pad = 150;
+		height = 700;//(window.innerHeight - 50) * 0.95 - margin.top - margin.bottom;
+		group_pad = 15; 
+
+var formatNumber = d3.format(",.0f"),    // zero decimal places
+		format = function(d) { return formatNumber(d) + " " + units; },
+		color = d3.scale.category20();
+
+// append the svg canvas to the page
+var svg = d3.select("#chart").append("svg")
+		.attr("width", width + margin.left + margin.right + legend_pad)
+		.attr("height", height  + margin.top + margin.bottom)                    //////
+	.append("g")
+		.attr("transform", 
+					"translate(" + margin.left + "," + margin.top + ")");
+
+// Set the sankey diagram properties
+var sankey = d3.sankey()
+		.nodeWidth(7)
+		.nodePadding(10)
+		.size([width, height / 4]);                                                 /////
+
+var path = sankey.link();
+
+// load the data
+
+console.log("loading that file...");
+
+d3.json(file_name + ".json", function(error, graph) 
+{
+
+	sankey
+			.nodes(graph.nodes)
+			.links(graph.links);
+
+	console.log('nodes and links exist. time to lay them out...');
+
+	sankey.layout(1);
+
+	var header = graph.header;
+	document.getElementById("head").innerHTML = header;
+
+
+//  figure out where the nodes need to go...
+
+	//  find the max sizes of the nodes
+	var maxes = {'ECE':0, 'ME ':0, 'E  ':0, 'U  ':0, 'LOA':0};
+	for (n in graph.nodes)
+	{
+		node = graph.nodes[n];
+		maxes = find_max(maxes, node);
+	}
+
+	//  find the max terms of the groups
+	var mt = {'ECE':0, 'ME ':0, 'E  ':0, 'U  ':0, 'LOA':0};
+	for (n in graph.nodes)
+	{
+		node = graph.nodes[n];
+		mt = find_max_terms(mt, node);
+	}
+
+	// console.log(mt);
+
+	//  "fix" the existing layout
+	var sort_order = ['ME ', 'ECE', 'E  ', 'U  ', 'LOA'];
+	for (n in graph.nodes)
+	{
+		graph.nodes[n].y = auto_y(graph.nodes[n], maxes, sort_order, group_pad);
+		// graph.nodes[n].dy = graph.nodes[n].value; //  pixel-perfect
+	}
+
+sankey.relayout();
+
+
+// add in the links
+	var link = svg.append("g").selectAll(".link")
+			.data(graph.links)
+		.enter().append("path")
+			.attr("class", "link")
+			.attr("d", path)
+			.style("stroke-width", function(d) { return Math.max(1, d.dy); })
+			.sort(function(a, b) { return b.dy - a.dy; });
+
+// add the link titles
+	link.append("title")
+				.text(function(d) {
+				return d.source.name + " → " + 
+								d.target.name + "\n" + format(d.value); });
+
+
+
+
+
+// add in the nodes
+	var node = svg.append("g").selectAll(".node")
+			.data(graph.nodes)
+		.enter().append("g")
+			.attr("class", "node")
+			.attr("transform", function(d) { 
+				// console.log("d", d);                                                    ///////
+			return "translate(" + d.x + "," + d.y + ")"; })
+		.call(
+			d3.behavior.drag()
+				.origin(function(d) { return d; })
+				.on("dragstart", function() { 
+					this.parentNode.appendChild(this); 
+				})
+				.on("drag", dragmove));
+
+// add the rectangles for the nodes
+	node.append("rect")
+			.attr("height", function(d) { return d.dy; })                           ///////
+			.attr("width", sankey.nodeWidth())
+			.style("fill", function(d) 
+			{ 
+			return d.color = choose_color(d.name);
+			})
+			.style("stroke", function(d) { 
+			return d3.rgb(d.color).darker(2); })
+		.append("title")
+			.text(function(d) { 
+			return d.name + "\n" + format(d.value); });
+
+// // add in the title for the nodes
+//   node.append("text")
+//       .attr("x", -6)
+//       .attr("y", function(d) { return d.dy / 2; })
+//       .attr("dy", ".35em")
+//       .attr("text-anchor", "end")
+//       .attr("transform", null)
+//       .text(function(d) { return d.name; })
+//     .filter(function(d) { return d.x < width / 2; })
+//       .attr("x", 6 + sankey.nodeWidth())
+//       .attr("text-anchor", "start");
+
+
+	// Set the sankey diagram properties                                          ///////////
+	sankey
+		.size([width + legend_pad, height]);
+
+
+
+
+	// add in the legend. repurpose the "text" field from before
+	node.append("text")
+			.attr("x", function(d){return calculate_legend_x(d, sankey.nodeWidth(), width)})// 6 + sankey.nodeWidth())
+			.attr("y", function(d) { return d.dy / 2; })
+			.attr("dy", ".35em")
+			.attr("text-anchor", "start")   //  is "end" for the other one
+			.attr("transform", null)
+			.text(function(d) { return write_legend(d, mt)});
+	 
+
+
+	// sankey.layout(1);
+
+// the function for moving the nodes
+	function dragmove(d)
+	{
+		d3.select(this).attr("transform", 
+				"translate(" + d.x + "," + (
+								d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))
+						) + ")");
+		sankey.relayout();
+		link.attr("d", path);
+	}
+
+
+
+
+	var window_name = file_name;//'MIDFIELD Sankey chart: '.concat(file_name)
+
+	window.document.title = window_name
+
+
+
+	// window.onresize = function(event) {
+	//   var width = window.innerWidth * 0.95 - margin.left - margin.right,
+	//       height = (window.innerHeight - 50) * 0.95 - margin.top - margin.bottom;
+	//   console.log('resized!')
+	//   var svg = d3.select("#chart");
+	//     svg.attr("width", width + margin.left + margin.right)
+	//     svg.attr("height", height  + margin.top + margin.bottom)                    //////
+	//     svg.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	//   sankey
+	//     .size([width, height / 2]);
+	//   sankey.layout(1);
+	//   sankey
+	//     .size([width, height]);
+	// }
+
+
+
+
+
+	// function on_resize() {
+	//   var width = window.innerWidth * 0.95 - margin.left - margin.right,
+	//       height = (window.innerHeight - 50) * 0.95 - margin.top - margin.bottom;
+	//   console.log('resized')
+	//   sankey
+	//     .size([width, height]);
+	// } 
+
+
+
+	// function on_resize(c,t){onresize=function(){clearTimeout(t);t=setTimeout(c,100)};return c};
+
+}
+
+
+
+);
+
+// these parenthesis does the trick
+
+</script>
+
+</body>
 </html>

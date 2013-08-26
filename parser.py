@@ -432,7 +432,18 @@ def write_bubbles_json(data, folder = 'output\\pie\\'):
 	# each course gets a json
 	for course_id in course_ids:
 		course = data[course_id]
+		filename = folder + course_id + '.json'
 
+		# print '\n', [course_id]
+		# for k in course.keys():
+		# 	print k, course[k]
+
+		out = open(filename, "w")
+		print filename + ':\t writing . . .',
+		out.write(json.dumps(course, ensure_ascii = False, indent = 4) + "\n")
+		out.close()
+
+		print 'done!'
 
 	
 def make_bubbles_and_bars_stuff(filename):

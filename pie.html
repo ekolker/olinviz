@@ -32,7 +32,7 @@
 
 <header type="text/javascript">
 
-<p id="head">Olin Sankey Chart.<br>
+<p id="head">Olin Pie Chart<br>
 Please select the file you wish to visualize.</p>
 
 </header>
@@ -44,31 +44,27 @@ Please select the file you wish to visualize.</p>
 
 </script>
 
-<p id="chart"></p>
+<p id="pieChart"></p>
 
 <script type="text/javascript" src="d3/d3.js"></script>
 <script>
 console.log("here we go");
 
-var file_name = prompt("Target data file",
-				"olin");
-
+var file_name = prompt("Target data file", "olin");
 
 var units = "students";
 
 var margin = {top: 10, right: 10, bottom: 10, left: 10},
-		width = 1190,//window.innerWidth * 0.95 - margin.left - margin.right,
-		legend_pad = 150;
-		height = 700;//(window.innerHeight - 50) * 0.95 - margin.top - margin.bottom;
-		group_pad = 15; 
+	width = 1190,//window.innerWidth * 0.95 - margin.left - margin.right,
+	height = 600;
 
 var formatNumber = d3.format(",.0f"),    // zero decimal places
 		format = function(d) { return formatNumber(d) + " " + units; },
 		color = d3.scale.category20();
 
 // append the svg canvas to the page
-var svg = d3.select("#chart").append("svg")
-		.attr("width", width + margin.left + margin.right + legend_pad)
+var svg = d3.select("#pieChart").append("svg")
+		.attr("width", width + margin.left + margin.right)
 		.attr("height", height  + margin.top + margin.bottom)                    //////
 	.append("g")
 		.attr("transform", 

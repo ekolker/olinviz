@@ -151,13 +151,13 @@ def build_majorpaths(students):
 		# add in the gap terms. in this case, all LOA.
 		k = majors.keys()
 		k.sort()
-		print k
+		# print k
 		for g in gap_terms:
 			majors[g] = 'LOA'
 		k = majors.keys()
 		k.sort()
-		print k		
-		print ''
+		# print k		
+		# print ''
 
 		terms.sort()
 		majorpath = ''
@@ -353,7 +353,7 @@ def generate_output(students, filename, header, tags = ''):
 		# realization: this will be hard...
 
 
-def make_sankey_stuff(filename):
+def make_sankey_stuff(filename, sankey_folder = 'output\\sankey\\'):
 
 	'''
 	encapsulate all the sankey-related code here
@@ -399,7 +399,7 @@ def make_sankey_stuff(filename):
 		olin_class_of[grad_year] = this_graduating_class
 
 		# output!
-		generate_output(this_graduating_class, grad_year + '_all.json', \
+		generate_output(this_graduating_class, sankey_folder + grad_year + '_all.json', \
 			'Class of ' + grad_year)
 
 
@@ -412,18 +412,18 @@ def make_sankey_stuff(filename):
 
 	# build some .json files!
 	# all olin students ever
-	generate_output(students, 'olin.json', 'All of Olin')
+	generate_output(students, sankey_folder + 'olin.json', 'All of Olin')
 
 	# ladies
-	generate_output(women, 'women.json', 'All of Olin\'s women')
+	generate_output(women, sankey_folder + 'women.json', 'All of Olin\'s women')
 	# gentlemen
-	generate_output(men, 'men.json', 'All of Olin\'s men')
+	generate_output(men, sankey_folder + 'men.json', 'All of Olin\'s men')
 
 	print '\ndone with sankey-ing!\n\n-------------------------------\n'
 
 
 
-def write_bubbles_json(data):
+def write_bubbles_json(data, folder = 'output\\pie\\'):
 	'''
 	take a courses-style dict, make a json with its contents
 	'''

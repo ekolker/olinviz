@@ -63,9 +63,9 @@
         color = d3.scale.category20();
 
     // append the svg canvas to the page
-    var svg = d3.select("#pieChart").append("svg")
+    var svg = d3.select("body").append("svg")
         .attr("width", width + margin.left + margin.right)
-        .attr("height", height  + margin.top + margin.bottom)                    //////
+        .attr("height", height  + margin.top + margin.bottom)
       .append("g")
         .attr("transform", 
               "translate(" + margin.left + "," + margin.top + ")");
@@ -81,6 +81,7 @@
 
       //  let's make an object
       var data = {};
+      data.scaler = 0.5;  //  make it scale down to size nicely
       data.enrolled = pie.students.length;
 
       function log10(val)     //  because 10s are easier to mental math
@@ -88,11 +89,58 @@
         return Math.log(val) / Math.LN10;
       }
 
-      data.radius = 1000.0 / 3.0 * log10(data.enrolled);  //normalize to ~1k
       data.me = pie.majors.ME.length;
       data.ece = pie.majors.ECE.length;
       data.e = pie.majors.E.length;
       data.u = pie.majors.U.length;
+
+      data.radius = 1000.0 / 3.0 * log10(data.enrolled) * 0.5 * data.scaler;  //normalize to ~1k
+      // for the color...
+      data.outer = data.radius * 1.1; //  for course coloring
+      data.color = d3.rgb(50, 160, 255);      //  Olin = new blue
+      if (fileName.indexOf("ENGR") != -1)
+        data.color = d3.rgb(255, 174, 201);   //  pink
+      else if (fileName.indexOf("MTH") != -1)
+        data.color = d3.rgb(111, 185, 191);   //  teal
+      else if (fileName.indexOf("SCI") != -1)
+        data.color = d3.rgb(255, 242, 0);     //  yellow?
+      else if (fileName.indexOf("AHS") != -1)
+        data.color = d3.rgb(255, 127, 201);   //  purple?
+
+
+      
+      
+      //Width and height
+      var w = 500;
+      var h = 50;
+      
+      //Data
+      var dataset = [ 5, 10, 15, 20, 25 ];
+      
+      // //Create SVG element
+      // var svg = d3.select("body")
+      //       .append("svg")
+      //       .attr("width", 500)
+      //       .attr("height", 50);
+
+      var outer = svg.selectAll("circle")
+          .data([data.outer])
+          .enter()
+          .append("circle");
+
+      outer.attr("cx", 500)
+           .attr("cy", height - data.radius)
+           .attr("r", function(d) { return d; })
+           .attr("fill", data.color)
+           .attr("stroke", data.color.darker())
+           .attr("stroke-width", data.outer * 0.01);
+
+    
+
+
+      console.log(data.color)
+
+
 
 
 

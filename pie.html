@@ -3,97 +3,111 @@
 <title>Olin Pie</title>
 <style>
 
-    .slice text
-    {
-        pointer-events: none;
-        /*text-shadow: 0 1px 0 #fff;*/
-        font-size: 10pt;
-        font-family: sans-serif;
-        /*-webkit-transform: rotate(-30deg)*/
-    }
+  .slice text
+  {
+    pointer-events: none;
+    /*text-shadow: 0 1px 0 #fff;*/
+    font-size: 10pt;
+    font-family: sans-serif;
+    /*-webkit-transform: rotate(-30deg)*/
+  }
 
-    .slice:hover
-    {
-        stroke-opacity: .5;
-    }
+  .slice:hover
+  {
+    stroke-opacity: .5;
+  }
 
-    /*.link
-    {
-        fill: none;
-        stroke: #000;
-        stroke-opacity: .2;
-    }*/
+  /*.link
+  {
+    fill: none;
+    stroke: #000;
+    stroke-opacity: .2;
+  }*/
 </style>
 
 <header type="text/javascript">
 
-    <p id="head">Olin Pie Chart<br>
-    Please select the file you wish to visualize.</p>
+  <p id="head">Olin Pie Chart<br>
+  Please select the file you wish to visualize.</p>
 
 </header>
 
 <body>
 
-    <p id="pieChart"></p>
+  <p id="pieChart"></p>
 
-    <script type="text/javascript" src="d3/d3.js"></script>
-    <script>
-        console.log("here we go");
+  <script type="text/javascript" src="d3/d3.js"></script>
+  <script>
+    console.log("here we go");
 
-        var fileName = prompt("Target data file", "ENGR4190");
-
-
-         //  OS-apprpriate path to the file...
-        var sep = "/";
-        if (navigator.appVersion.indexOf("Win")!=-1)  //  are we on windows?
-        {
-          sep = "\\";   //  you're special, you know that, right?
-        }
-        fileName = "." + sep + "output" + sep + "pie" + sep + fileName;
+    var fileName = prompt("Target data file", "ENGR4190");
 
 
-        var units = "students";
-
-        var margin = {top: 10, right: 10, bottom: 10, left: 10},
-            width = 1190,//window.innerWidth * 0.95 - margin.left - margin.right,
-            height = 600;
-
-        var formatNumber = d3.format(",.1f"),    // one decimal place
-                format = function(d) { return formatNumber(d) + " " + units; },
-                color = d3.scale.category20();
-
-        // append the svg canvas to the page
-        var svg = d3.select("#pieChart").append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height  + margin.top + margin.bottom)                    //////
-            .append("g")
-                .attr("transform", 
-                            "translate(" + margin.left + "," + margin.top + ")");
-
-        // load the data
-
-        console.log("loading that file...");
-
-        //  data now is that object 
-        data = d3.json(fileName + ".json", function(pie) 
-        {
-            console.log('building...');
-            return pie;
-        });
-
-        console.log(data);
-
-        var arc = d3.svg.arc();
-            // .outerRadius(
+     //  OS-apprpriate path to the file...
+    var sep = "/";
+    if (navigator.appVersion.indexOf("Win")!=-1)  //  are we on windows?
+    {
+      sep = "\\";   //  you're special, you know that, right?
+    }
+    fileName = "." + sep + "output" + sep + "pie" + sep + fileName;
 
 
+    var units = "students";
 
-        //  window "management"
-        var window_name = fileName;
-        window.document.title = window_name
-        console.log("\nwe made it!");
+    var margin = {top: 10, right: 10, bottom: 10, left: 10},
+      width = 1190,//window.innerWidth * 0.95 - margin.left - margin.right,
+      height = 600;
+
+    var formatNumber = d3.format(",.1f"),    // one decimal place
+        format = function(d) { return formatNumber(d) + " " + units; },
+        color = d3.scale.category20();
+
+    // append the svg canvas to the page
+    var svg = d3.select("#pieChart").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height  + margin.top + margin.bottom)                    //////
+      .append("g")
+        .attr("transform", 
+              "translate(" + margin.left + "," + margin.top + ")");
 
 
-    </script>
+    // load the data
+    console.log("loading that file...");
+    //  in order to make an Olin pie from scratch...
+    d3.json(fileName + ".json", function(pie) 
+    {
+      console.log('building...');
+      console.log(pie.majors);
+
+      //  let's make an object
+      var data = {};
+      data.enrolled = pie.students.length;
+
+      function log10(val)     //  because 10s are easier to mental math
+      {
+        return Math.log(val) / Math.LN10;
+      }
+
+      data.radius = 1000.0 / 3.0 * log10(data.enrolled);  //normalize to ~1k
+      data.me = pie.majors.ME.length;
+      data.ece = pie.majors.ECE.length;
+      data.e = pie.majors.E.length;
+      data.u = pie.majors.U.length;
+
+
+
+
+      console.log(data);
+
+
+    });
+
+
+    //  window "management"
+    var window_name = fileName;
+    window.document.title = window_name
+    console.log("\nwe made it!");
+
+  </script>
 </body>
 </html>

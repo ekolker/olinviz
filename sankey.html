@@ -57,8 +57,17 @@
 
     console.log("here we go");
 
-    var file_name = prompt("Target data file, i.e.:\n[year]_all, olin, men, women",
-            "olin");
+    var file_name = prompt("Target data file, i.e.:\n[year]_all, olin, men, women", "olin");
+
+
+    //  OS-apprpriate path to the file...
+    var sep = "/";
+    if (navigator.appVersion.indexOf("Win")!=-1)  //  are we on windows?
+    {
+      sep = "\\";   //  you're special, you know that, right?
+    }
+    file_name = "." + sep + "output" + sep + "sankey" + sep + file_name;
+
 
     var units = "students";
 
@@ -137,7 +146,7 @@
 
     sankey.relayout();
 
-<<<<<<< HEAD
+// <<<<<<< HEAD
 
     // add in the links
       var link = svg.append("g").selectAll(".link")
@@ -226,9 +235,10 @@
       {
         d3.select(this).attr("transform", 
             "translate(" + d.x + "," + (
-            d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))
-=======
-sankey.relayout();
+            d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))));
+        sankey.relayout();
+      }
+// =======
 
 
 // add in the links
@@ -319,7 +329,7 @@ sankey.relayout();
     d3.select(this).attr("transform", 
         "translate(" + d.x + "," + (
                 d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))
->>>>>>> playing with everything
+// >>>>>>> playing with everything
             ) + ")");
         sankey.relayout();
         link.attr("d", path);

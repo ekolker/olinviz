@@ -93,6 +93,10 @@
       data.ece = pie.majors.ECE.length;
       data.e = pie.majors.E.length;
       data.u = pie.majors.U.length;
+      data.pie = [{"label" : " ", "value" : data.me, "color" : "#d62728"},
+        {"label" : " ", "value" : data.ece, "color" : "#1f77b4"},
+        {"label" : " ", "value" : data.e, "color" : "#2ca02c"},
+        {"label" : " ", "value" : data.u, "color" : "#5625ad"} ];
 
       data.radius = 1000.0 / 3.0 * log10(data.enrolled) * 0.5 * data.scaler;  //normalize to ~1k
       // for the color...
@@ -108,25 +112,12 @@
         data.color = d3.rgb(255, 127, 201);   //  purple?
 
 
-      
-      
-      //Width and height
-      var w = 500;
-      var h = 50;
-      
-      //Data
-      var dataset = [ 5, 10, 15, 20, 25 ];
-      
-      // //Create SVG element
-      // var svg = d3.select("body")
-      //       .append("svg")
-      //       .attr("width", 500)
-      //       .attr("height", 50);
-
-      var outer = svg.selectAll("circle")
+      // draw the outer circle
+      var outer = svg.selectAll("outer")
           .data([data.outer])
           .enter()
-          .append("circle");
+          .append("circle")
+          .attr("class", "outer");
 
       outer.attr("cx", 500)
            .attr("cy", height - data.radius)
@@ -136,9 +127,44 @@
            .attr("stroke-width", data.outer * 0.01);
 
     
+      //  draw the actual pie chart
+      var vis = d3.select("body")
+        .append("svg")
+        .data([data.pie])       //associate our data with the document
+          .attr("width", 2 * data.radius)           //set the width and height of our visualization (these will be attributes of the <svg> tag
+          .attr("height", 2 * data.radius)
+        .append("g")            //make a group to hold our pie chart
+          .attr("transform", "translate(" + data.radius + "," + data.radius + ")")    //move the center of the pie chart from 0, 0 to radius, radius
+   
+      var arc = d3.svg.arc()              //this will create <path> elements for us using arc data
+        .outerRadius(data.radius);
+   
+      var pie = d3.layout.pie()   //create arc data given a list of values
+        .value(function(d) { return d.value; });    //we must tell it out to access the value of each element in our data array
+   
+      var arcs = vis.selectAll("g.slice")     //this selects all <g> elements with class slice (there aren't any yet)
+          .data(pie)                          //associate the generated pie data (an array of arcs, each having startAngle, endAngle and value properties) 
+          .enter()                            //this will create <g> elements for every "extra" data element that should be associated with a selection. The result is creating a <g> for every object in the data array
+              .append("svg:g")                //create a group to hold each slice (we will have a <path> and a <text> element associated with each slice)
+                  .attr("class", "slice");    //allow us to style things in the slices (like text)
+   
+          arcs.append("svg:path")
+                  .attr("fill", function(d, i) { return data.pie[i].color; } ) //set the color for each slice to be chosen from the color function defined above
+                  .attr("d", arc);                                    //this creates the actual SVG path using the associated data (pie) with the arc drawing function
+   
+          arcs.append("svg:text")                                     //add a label to each slice
+                  .attr("transform", function(d) {                    //set the label's origin to the center of the arc
+                  //we have to make sure to set these before calling arc.centroid
+                  d.innerRadius = 0;
+                  d.outerRadius = data.radius;
+                  return "translate(" + arc.centroid(d) + ")";        //this gives us a pair of coordinates like [50, 50]
+              })
+              .attr("text-anchor", "middle")                          //center the text on it's origin
+              .text(function(d, i) { return d.label; });        //get the label from our original data array
 
 
-      console.log(data.color)
+
+      console.log(color)
 
 
 

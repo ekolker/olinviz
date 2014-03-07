@@ -3,80 +3,185 @@
 <title>Olin Pie</title>
 <style>
 
-	.slice text
-	{
-		pointer-events: none;
-		/*text-shadow: 0 1px 0 #fff;*/
-		font-size: 10pt;
-		font-family: sans-serif;
-		/*-webkit-transform: rotate(-30deg)*/
-	}
+  .slice text
+  {
+    pointer-events: none;
+    /*text-shadow: 0 1px 0 #fff;*/
+    font-size: 10pt;
+    font-family: sans-serif;
+    /*-webkit-transform: rotate(-30deg)*/
+  }
 
-	.slice:hover
-	{
-		stroke-opacity: .5;
-	}
+  .slice:hover
+  {
+    stroke-opacity: .5;
+  }
 
-	/*.link
-	{
-		fill: none;
-		stroke: #000;
-		stroke-opacity: .2;
-	}*/
+  /*.link
+  {
+    fill: none;
+    stroke: #000;
+    stroke-opacity: .2;
+  }*/
 </style>
 
 <header type="text/javascript">
 
-	<p id="head">Olin Pie Chart<br>
-	Please select the file you wish to visualize.</p>
+  <p id="head">Olin Pie Chart<br>
+  Please select the file you wish to visualize.</p>
 
 </header>
 
 <body>
 
-	<p id="pieChart"></p>
+  <p id="pieChart"></p>
 
-	<script type="text/javascript" src="d3/d3.js"></script>
-	<script>
-		console.log("here we go");
+  <script type="text/javascript" src="d3/d3.js"></script>
+  <script>
+    console.log("here we go");
 
-		var fileName = prompt("Target data file", "olin");
+    var fileName = prompt("Target data file", "ENGR4190");
 
-		var units = "students";
 
-		var margin = {top: 10, right: 10, bottom: 10, left: 10},
-			width = 1190,//window.innerWidth * 0.95 - margin.left - margin.right,
-			height = 600;
+     //  OS-apprpriate path to the file...
+    var sep = "/";
+    if (navigator.appVersion.indexOf("Win")!=-1)  //  are we on windows?
+    {
+      sep = "\\";   //  you're special, you know that, right?
+    }
+    fileName = "." + sep + "output" + sep + "pie" + sep + fileName;
 
-		var formatNumber = d3.format(",.1f"),    // one decimal place
-				format = function(d) { return formatNumber(d) + " " + units; },
-				color = d3.scale.category20();
 
-		// append the svg canvas to the page
-		var svg = d3.select("#pieChart").append("svg")
-				.attr("width", width + margin.left + margin.right)
-				.attr("height", height  + margin.top + margin.bottom)                    //////
-			.append("g")
-				.attr("transform", 
-							"translate(" + margin.left + "," + margin.top + ")");
+    var units = "students";
 
-		// load the data
+    var margin = {top: 10, right: 10, bottom: 10, left: 10},
+      width = 1190,//window.innerWidth * 0.95 - margin.left - margin.right,
+      height = 600;
 
-		console.log("loading that file...");
+    var formatNumber = d3.format(",.1f"),    // one decimal place
+        format = function(d) { return formatNumber(d) + " " + units; },
+        color = d3.scale.category20();
 
-		d3.json(fileName + ".json", function(pie) 
-		{
-			console.log('building...');
+    // append the svg canvas to the page
+    var svg = d3.select("body").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height  + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", 
+              "translate(" + margin.left + "," + margin.top + ")");
 
-			//	window "management"
-			var window_name = fileName;
-			window.document.title = window_name
 
-			var arc = d3.svg.arc()
-				
+    // load the data
+    console.log("loading that file...");
+    //  in order to make an Olin pie from scratch...
+    d3.json(fileName + ".json", function(pie) 
+    {
+      console.log('building...');
+      console.log(pie.majors);
 
-		});
+      //  let's make an object
+      var data = {};
+      data.scaler = 0.5;  //  make it scale down to size nicely
+      data.enrolled = pie.students.length;
 
-	</script>
+      function log10(val)     //  because 10s are easier to mental math
+      {
+        return Math.log(val) / Math.LN10;
+      }
+
+      data.me = pie.majors.ME.length;
+      data.ece = pie.majors.ECE.length;
+      data.e = pie.majors.E.length;
+      data.u = pie.majors.U.length;
+      data.pie = [{"label" : " ", "value" : data.me, "color" : "#d62728"},
+        {"label" : " ", "value" : data.ece, "color" : "#1f77b4"},
+        {"label" : " ", "value" : data.e, "color" : "#2ca02c"},
+        {"label" : " ", "value" : data.u, "color" : "#5625ad"} ];
+
+      data.radius = 1000.0 / 3.0 * log10(data.enrolled) * 0.5 * data.scaler;  //normalize to ~1k
+      // for the color...
+      data.outer = data.radius * 1.1; //  for course coloring
+      data.color = d3.rgb(50, 160, 255);      //  Olin = new blue
+      if (fileName.indexOf("ENGR") != -1)
+        data.color = d3.rgb(255, 174, 201);   //  pink
+      else if (fileName.indexOf("MTH") != -1)
+        data.color = d3.rgb(111, 185, 191);   //  teal
+      else if (fileName.indexOf("SCI") != -1)
+        data.color = d3.rgb(255, 242, 0);     //  yellow?
+      else if (fileName.indexOf("AHS") != -1)
+        data.color = d3.rgb(255, 127, 201);   //  purple?
+
+
+      // draw the outer circle
+      var outer = svg.selectAll("outer")
+          .data([data.outer])
+          .enter()
+          .append("circle")
+          .attr("class", "outer");
+
+      outer.attr("cx", 500)
+           .attr("cy", height - data.radius)
+           .attr("r", function(d) { return d; })
+           .attr("fill", data.color)
+           .attr("stroke", data.color.darker())
+           .attr("stroke-width", data.outer * 0.01);
+
+    
+      //  draw the actual pie chart
+      var vis = d3.select("body")
+        .append("svg")
+        .data([data.pie])       //associate our data with the document
+          .attr("width", 2 * data.radius)           //set the width and height of our visualization (these will be attributes of the <svg> tag
+          .attr("height", 2 * data.radius)
+        .append("g")            //make a group to hold our pie chart
+          .attr("transform", "translate(" + data.radius + "," + data.radius + ")")    //move the center of the pie chart from 0, 0 to radius, radius
+   
+      var arc = d3.svg.arc()              //this will create <path> elements for us using arc data
+        .outerRadius(data.radius);
+   
+      var pie = d3.layout.pie()   //create arc data given a list of values
+        .value(function(d) { return d.value; });    //we must tell it out to access the value of each element in our data array
+   
+      var arcs = vis.selectAll("g.slice")     //this selects all <g> elements with class slice (there aren't any yet)
+          .data(pie)                          //associate the generated pie data (an array of arcs, each having startAngle, endAngle and value properties) 
+          .enter()                            //this will create <g> elements for every "extra" data element that should be associated with a selection. The result is creating a <g> for every object in the data array
+              .append("svg:g")                //create a group to hold each slice (we will have a <path> and a <text> element associated with each slice)
+                  .attr("class", "slice");    //allow us to style things in the slices (like text)
+   
+          arcs.append("svg:path")
+                  .attr("fill", function(d, i) { return data.pie[i].color; } ) //set the color for each slice to be chosen from the color function defined above
+                  .attr("d", arc);                                    //this creates the actual SVG path using the associated data (pie) with the arc drawing function
+   
+          arcs.append("svg:text")                                     //add a label to each slice
+                  .attr("transform", function(d) {                    //set the label's origin to the center of the arc
+                  //we have to make sure to set these before calling arc.centroid
+                  d.innerRadius = 0;
+                  d.outerRadius = data.radius;
+                  return "translate(" + arc.centroid(d) + ")";        //this gives us a pair of coordinates like [50, 50]
+              })
+              .attr("text-anchor", "middle")                          //center the text on it's origin
+              .text(function(d, i) { return d.label; });        //get the label from our original data array
+
+
+
+      console.log(color)
+
+
+
+
+
+
+      console.log(data);
+
+
+    });
+
+
+    //  window "management"
+    var window_name = fileName;
+    window.document.title = window_name
+    console.log("\nwe made it!");
+
+  </script>
 </body>
 </html>

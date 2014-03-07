@@ -399,8 +399,8 @@ def make_sankey_stuff(filename, sankey_folder = 'output\\sankey\\'):
 		olin_class_of[grad_year] = this_graduating_class
 
 		# output!
-		generate_output(this_graduating_class, sankey_folder + grad_year + '_all.json', \
-			'Class of ' + grad_year)
+		# generate_output(this_graduating_class, sankey_folder + grad_year + '_all.json', \
+		# 	'Class of ' + grad_year)
 
 
 
@@ -412,15 +412,15 @@ def make_sankey_stuff(filename, sankey_folder = 'output\\sankey\\'):
 
 	# build some .json files!
 	# all olin students ever
-	generate_output(students, sankey_folder + 'olin.json', 'All of Olin')
+	# generate_output(students, sankey_folder + 'olin.json', 'All of Olin')
 
 	# ladies
-	generate_output(women, sankey_folder + 'women.json', 'All of Olin\'s women')
+	# generate_output(women, sankey_folder + 'women.json', 'All of Olin\'s women')
 	# gentlemen
-	generate_output(men, sankey_folder + 'men.json', 'All of Olin\'s men')
+	# generate_output(men, sankey_folder + 'men.json', 'All of Olin\'s men')
 
 	print '\ndone with sankey-ing!\n\n-------------------------------\n'
-
+	
 
 
 def write_bubbles_json(data, folder = 'output\\pie\\'):
@@ -521,7 +521,7 @@ def make_bubbles_and_bars_stuff(filename):
 			database['genders'][gender].append(identifier)
 
 	# data have been parsed, so now output them!
-	write_bubbles_json(courses)
+	# write_bubbles_json(courses)
 
 	print 'done with bubble/bar json writing\n'
 
@@ -536,7 +536,7 @@ def main(name):
 	make_sankey_stuff("data2.csv")
 
 	# do the bubbles and bars
-	make_bubbles_and_bars_stuff("data2.csv")
+	# make_bubbles_and_bars_stuff("data2.csv")
 
 
 

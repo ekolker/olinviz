@@ -42,7 +42,7 @@ def process_student(students, enrollment):
 			'title'	-> list of course titles (strings)
 			'id'	-> list of course id numbers (strings)
 		'terms'	-> dict; keys:
-			list of terms (int)	->	term name (strings)
+			list of terms (int)	->	term name (strings) 
 	"""
 
 	# add in the major at that particular term

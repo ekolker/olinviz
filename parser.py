@@ -21,7 +21,7 @@ def process_student(students, enrollment):
 	gender = enrollment[2].strip()
 	year = enrollment[3].strip()
 	major = enrollment[4].strip()
-	concentration = enrollment[5].strip()
+	concentration = enrollment[5].strip() 
 	course_id = enrollment[6].strip()
 	course_title = enrollment[7].strip()
 
